@@ -199,15 +199,13 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
 
     let displayValue = title.includes('Avg. Wait Time') ? `${value}` : `${value}`;
     
-    // START FIX: Only show FaInfoCircle when onClick is provided (for the critical hospitals modal)
+    // FIX: Only show FaInfoCircle when onClick is provided (for the critical hospitals modal)
     const showInfoIcon = !!onClick; 
-    // END FIX
 
     return (
         <div onClick={onClick} className={`text-center group transition-all duration-300 relative px-2 ${onClick ? 'cursor-pointer' : ''}`}>
-            {/* START FIX: Conditional rendering for the info icon */}
+            {/* Conditional rendering for the info icon */}
             {showInfoIcon && <FaInfoCircle className="absolute top-0 right-1 text-gray-300 group-hover:text-blue-500 transition-colors" size={10} />}
-            {/* END FIX */}
             <p className="text-[11px] font-semibold text-gray-500 flex items-center justify-center gap-1 leading-tight h-6 truncate">
                 <Icon size={10} style={{ color }}/> <span>{title}</span>
             </p>
@@ -548,30 +546,29 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
-                {/* START FIX: Padding reduced from p-2 to p-1.5 for minimal spacing and to eliminate the scrollbar */}
-                <main className="flex-grow flex flex-col p-0 overflow-y-auto gap-2">
-                {/* END FIX */}
+                {/* FINAL FIX: px-2 for minimal side padding, py-0 to kill scrollbar, space-y-2 for internal gaps. */}
+                <main className="flex-grow flex flex-col px-2 py-0 overflow-y-auto space-y-2">
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
-                    <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
-                        {/* START FIX: Removed onClick from all KPIs except 'Hospitals >85% BOR' to remove the info icon */}
+                    {/* Added mt-2 margin to the top element for spacing below the header */}
+                    <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200 mt-2'>
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={undefined} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
                         <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={undefined} />
                         <KpiMetric title="Avg. Length of Stay" value={nationalStats.avgALOS.toFixed(1)} unit=" days" color={COLORS.safeGreen} icon={FaProcedures} isAlert={nationalStats.avgALOS > 6} trend={nationalStats.trend_alos} onClick={undefined} />
                         <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" color={COLORS.staffFatigue} icon={FaUserMd} isAlert={nationalStats.avgStaffFatigue > 70} trend={nationalStats.trend_fatigue} onClick={undefined}/>
                         <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" color={COLORS.patientSatisfaction} icon={FaSmile} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={undefined}/>
-                        {/* END FIX */}
                     </div>
 
                     {/* CHART AND ALERT PANELS (2-column split layout from Screenshot 308) */}
-                    <div className="flex-grow grid grid-cols-12 gap-2">
+                    {/* Added mb-2 margin to the bottom element to create space above the footer */}
+                    <div className="flex-grow grid grid-cols-12 gap-2 mb-2">
                         {/* Left Column: Zonal Chart (col-span-7) */}
-                        <div className="col-span-7">
+                        <div className="col-span-7 h-full">
                             <RegionalHotspotsChart stats={regionalStats} />
                         </div>
                         
                         {/* Right Column: Performance Index and BCAP Panel (col-span-5) */}
-                        <div className="col-span-5 flex flex-col gap-2">
+                        <div className="col-span-5 flex flex-col gap-2 h-full">
                             <SystemHealthPanel stats={nationalStats} />
                             <div className="bg-white p-3 rounded-lg shadow-lg flex-grow flex flex-col border border-slate-200">
                                 <h2 className="text-base font-bold flex items-center gap-2" style={{ color: COLORS.textDark }}><FaShieldAlt /> Bed Capacity Alert Panel (BCAP)</h2>
