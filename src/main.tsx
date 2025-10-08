@@ -1,4 +1,6 @@
-import React, { StrictMode } from 'react' // FIX: Explicitly import StrictMode
+// src/main.tsx
+
+import { StrictMode } from 'react' // FIX: Removed unused 'React' import
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'

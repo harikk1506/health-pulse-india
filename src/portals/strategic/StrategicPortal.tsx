@@ -31,10 +31,11 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
     const [toast, setToast] = useState<{message: string | null, type: string | null}>({ message: null, type: null });
     const modalRef = useRef(null);
 
-    const showToast = (message: string, type = 'success') => {
-        setToast({ message, type });
-        setTimeout(() => setToast({ message: null, type: null }), 5000);
-    };
+    // FIX: Removed the unused 'showToast' function declaration (TS6133 error)
+    // const showToast = (message: string, type = 'success') => {
+    //     setToast({ message, type });
+    //     setTimeout(() => setToast({ message: null, type: null }), 5000);
+    // };
 
     const handleLogout = () => {
         setIsLoggingOut(true);
@@ -104,7 +105,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
         return <LoginPage onLogin={() => setIsAuthenticated(true)} activePortal={activePortal} setActivePortal={setActivePortal} onGoToIntro={onGoToIntro} />;
     }
 
-    // FIX: Use the imported FaSpinner component for the loading screen to ensure it displays and allows app to proceed.
+    // This block also contains the fix for the previous white screen issue
     if (!nationalStats) { 
         return (
             <div className="flex h-screen items-center justify-center bg-slate-100">
