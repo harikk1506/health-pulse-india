@@ -1,11 +1,11 @@
 // src/IntroPage.tsx
 
 import React, { useState, useEffect } from 'react';
-import { FaUsers, FaAmbulance, FaHospitalUser, FaUniversity, FaArrowRight, FaBullseye, FaBookOpen } from 'react-icons/fa';
+import { FaUsers, FaAmbulance, FaHospitalUser, FaUniversity, FaArrowRight, FaBullseye, FaBookOpen, IconType } from 'react-icons/fa';
 import IndianLogo from './assets/logo.svg';
-import type { Portal } from './App'; // Import Portal type
+import type { Portal } from './types'; // Import Portal type
 
-const PortalLink = ({ title, description, icon: Icon, onEnter, portal, colorClass }) => (
+const PortalLink = ({ title, description, icon: Icon, onEnter, portal, colorClass }: {title: string, description: string, icon: IconType, onEnter: (portal: Portal) => void, portal: Portal, colorClass: string}) => (
     <div
         onClick={() => onEnter(portal)}
         className={`group relative flex flex-col items-center justify-center p-5 rounded-lg cursor-pointer transition-all duration-300 bg-white/70 hover:bg-white/90 border-2 border-transparent hover:border-${colorClass}-500/50 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1`}

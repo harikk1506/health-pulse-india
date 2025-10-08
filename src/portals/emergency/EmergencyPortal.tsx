@@ -1,9 +1,9 @@
 // src/portals/emergency/EmergencyPortal.tsx
 
-import React, { useState, useEffect, useMemo, useContext, useRef, useCallback } from 'react';
-import type { LiveHospitalData, Hospital, Portal } from '../../types';
+import React, { useState, useEffect, useMemo, useContext, useRef } from 'react';
+import type { LiveHospitalData, Portal } from '../../types';
 import { useGeolocation, getDistance, getMaxTransferDistance, getDynamicETA } from '../../utils/helpers_public';
-import { FaAmbulance, FaCheckCircle, FaSpinner, FaTimes, FaRoute, FaBell, FaPhone, FaHospitalAlt, FaSignOutAlt, FaChevronDown, FaExclamationTriangle, FaTimesCircle, FaMapMarkerAlt, FaHome } from 'react-icons/fa';
+import { FaAmbulance, FaCheckCircle, FaSpinner, FaTimes, FaRoute, FaBell, FaPhone, FaSignOutAlt, FaChevronDown, FaExclamationTriangle, FaTimesCircle, FaMapMarkerAlt, FaHome } from 'react-icons/fa';
 import { GlobalContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
 import IndianLogo from '../../assets/logo.svg';
@@ -76,7 +76,7 @@ const getHospitalTier = (hospital: LiveHospitalData): number => {
 }
 
 
-const Toast = ({ message, type, onClose }) => {
+const Toast = ({ message, type, onClose }: {message: string | null, type: string | null, onClose: () => void}) => {
     if (!message) return null;
     let colorClass = type === 'success' ? "bg-green-600" : type === 'error' ? "bg-red-600" : "bg-blue-600";
     let Icon = type === 'success' ? FaCheckCircle : type === 'error' ? FaTimes : FaExclamationTriangle;
@@ -130,7 +130,7 @@ const PortalHeader = ({ activePortal, setActivePortal, onLogout, isLoggedIn, onG
     );
 };
 
-const PortalFooter = ({ trafficMultiplier }) => {
+const PortalFooter = ({ trafficMultiplier }: {trafficMultiplier: number}) => {
     const color = trafficMultiplier > 1.8 ? 'text-red-400' : trafficMultiplier > 1.5 ? 'text-yellow-400' : 'text-green-400';
     const [dateTime, setDateTime] = useState(new Date());
 
@@ -153,7 +153,7 @@ const PortalFooter = ({ trafficMultiplier }) => {
     )
 };
 
-const CancellationReasonModal = ({ onClose, onSubmit }) => {
+const CancellationReasonModal = ({ onClose, onSubmit }: {onClose: () => void, onSubmit: (reason: string) => void}) => {
     const [reason, setReason] = useState('');
     const reasons = ["Patient Refused Transfer", "Incorrect Callout/False Alarm", "Transport Safety Concerns", "Mechanical Failure", "Scene Unsafe"];
 

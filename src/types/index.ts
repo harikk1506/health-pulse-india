@@ -1,5 +1,7 @@
 // src/types/index.ts
 
+export type Portal = 'PUBLIC' | 'EMERGENCY' | 'HOSPITAL' | 'STRATEGIC';
+
 export interface Hospital {
   id: number;
   name: string;
@@ -44,6 +46,8 @@ export interface LiveHospitalData extends Hospital {
   distance?: number;
   staffFatigue_score: number;
   patientSatisfaction_pct: number;
+  eta?: number; // Added for Emergency Portal
+  score?: number; // Added for AI recommendations
 }
 
 export type SortKey = 'distance' | 'googleRating' | 'currentWaitTime' | 'minConsultCharge' | 'availableBeds' | 'availableICUBeds';
@@ -78,6 +82,7 @@ export interface HistoricalDataPoint {
     avgWaitTime: number;
     staffFatigue: number;
     satisfaction: number;
+    [key: string]: any; // Allow for dynamic keys
 }
 
 // NEW: Type for Audit Log entries
@@ -93,7 +98,7 @@ export interface AuditLogEntry {
 export type Language = 'en' | 'hi';
 
 // NEW: Define the tiered dropdown options
-export type OwnershipType = 'Government (Central)' | 'Government (State)' | 'Government (UT)' | 'Private (Trust)' | 'Private (Large)' | 'Private (Mid-size)' | 'Private (Speciality)'; 
+export type OwnershipType = 'Government (Central)' | 'Government (State)' | 'Government (UT)' | 'Private (Trust)' | 'Private (Large)' | 'Private (Mid-size)' | 'Private (Speciality)';
 
 export interface MciState {
   isActive: boolean;

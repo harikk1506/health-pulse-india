@@ -8,13 +8,11 @@ import StrategicPortal from './portals/strategic/StrategicPortal.tsx';
 import IntroPage from './IntroPage';
 import { getInitialLiveHospitalData as getInitialPublicData, updateLiveMetrics as updatePublicMetrics } from './utils/helpers_public';
 import { simulationEngine } from './utils/simulationEngine'; // <-- IMPORT THE NEW ENGINE
-import type { GlobalContextType, LiveHospitalData, Language, MciState, NodalConfig, Shipment, AmbulanceAlert, HistoricalStat } from './types';
-
-export type Portal = 'PUBLIC' | 'EMERGENCY' | 'HOSPITAL' | 'STRATEGIC';
+import type { GlobalContextType, LiveHospitalData, Language, MciState, NodalConfig, Shipment, AmbulanceAlert, HistoricalStat, Portal } from './types';
 
 export const LanguageContext = createContext({
     language: 'en',
-    setLanguage: (lang: Language) => {},
+    setLanguage: (_lang: Language) => {},
 });
 
 const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
@@ -48,7 +46,7 @@ export const StrategicContext = createContext<GlobalContextType>(defaultGlobalCo
 const DataProvider = ({ children }: { children: React.ReactNode }) => {
     // State for Public/Emergency Portals (calm simulation)
     const [publicLiveData, setPublicLiveData] = useState<LiveHospitalData[]>(getInitialPublicData());
-    
+
     // State for Hospital/Strategic Portals (fed by the new engine)
     const [strategicLiveData, setStrategicLiveData] = useState<LiveHospitalData[]>([]);
     const [nationalHistory, setNationalHistory] = useState<HistoricalStat[]>([]);
@@ -71,10 +69,10 @@ const DataProvider = ({ children }: { children: React.ReactNode }) => {
     // Update loop for Public/Emergency data (calm simulation)
     useEffect(() => {
         const interval = setInterval(() => {
-            setPublicLiveData(currentData => 
+            setPublicLiveData(currentData =>
                 currentData.map(h => updatePublicMetrics(h, mciState, nodalConfigOverride))
             );
-            setTrafficMultiplier(1.0 + Math.random() * 1.5); 
+            setTrafficMultiplier(1.0 + Math.random() * 1.5);
         }, 3000);
         return () => clearInterval(interval);
     }, [mciState, nodalConfigOverride]);
@@ -85,7 +83,7 @@ const DataProvider = ({ children }: { children: React.ReactNode }) => {
             setStrategicLiveData(liveData);
             setNationalHistory(history);
         });
-        
+
         return () => unsubscribe(); // Clean up subscription on component unmount
     }, []); // <-- Empty dependency array ensures this runs only once.
 

@@ -1,7 +1,7 @@
 // src/utils/helpers_public.ts
 
 import { useState, useEffect, useRef } from 'react';
-import type { Hospital, LiveHospitalData, BedStatus, HistoricalStat, MciState, NodalConfig, HistoricalDataPoint } from '../types';
+import type { Hospital, LiveHospitalData, HistoricalStat, MciState, NodalConfig, HistoricalDataPoint } from '../types';
 import originalHospitalData from '../data/hospitals.json';
 
 const MAX_TRANSFER_DISTANCE_KM = 85;
@@ -27,7 +27,7 @@ export const getDynamicETA = (distanceKm: number, trafficMultiplier: number) => 
 
 export const useGeolocation = (
     portalType: 'public' | 'emergency',
-    missionPhase?: string,
+    _missionPhase?: string,
     destinationCoords?: [number, number] | null,
     isMissionActive?: boolean,
     simulationDuration?: number

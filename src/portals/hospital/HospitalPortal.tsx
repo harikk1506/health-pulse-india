@@ -1,12 +1,11 @@
 // src/portals/hospital/HospitalPortal.tsx
 
 import React, { useState, useEffect, useMemo, useRef, useContext, useCallback } from 'react';
-import type { LiveHospitalData, NodalConfig, AuditLogEntry, HistoricalDataPoint, Portal, Metric, HistoricalPeriod, Hospital, OwnershipType } from '../../types';
+import type { LiveHospitalData, AuditLogEntry, HistoricalDataPoint, Portal, Metric, HistoricalPeriod, Hospital, OwnershipType } from '../../types';
 import { generateHospitalHistory } from '../../utils/helpers_strategic';
-import { FaBed, FaClinicMedical, FaSpinner, FaTimes, FaUserMd, FaSave, FaChartLine, FaSignOutAlt, FaTachometerAlt, FaAmbulance, FaCheckCircle, FaExclamationTriangle, FaChevronLeft, FaChevronRight, FaBuilding, FaFirstAid, FaHistory, FaFileMedicalAlt, FaChevronDown, FaBriefcaseMedical, FaLink, FaSmile, FaPhone, FaBars, FaBell, FaClock, FaCalendar, FaTimesCircle, FaArrowUp, FaArrowDown, FaBullseye, FaHourglassHalf, FaHome } from 'react-icons/fa';
+import { FaBed, FaClinicMedical, FaSpinner, FaTimes, FaUserMd, FaSave, FaSignOutAlt, FaTachometerAlt, FaAmbulance, FaCheckCircle, FaExclamationTriangle, FaBuilding, FaFirstAid, FaHistory, FaFileMedicalAlt, FaChevronDown, FaLink, FaSmile, FaPhone, FaBars, FaHome, IconType } from 'react-icons/fa';
 import { StrategicContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
-import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
 // --- CONFIGURATION ---
@@ -17,7 +16,7 @@ const NODAL_OFFICER_ID = "NO-GTMCH-150";
 // --- METRIC MAPPING --
 const METRICS: Metric[] = ['occupancy', 'waitTime', 'fatigue', 'satisfaction'];
 
-const METRIC_CONFIG = {
+const METRIC_CONFIG: Record<Metric, { title: string; icon: IconType; color: string; }> = {
     occupancy: { title: 'Bed Occupancy Rate', icon: FaBed, color: "#2980b9" },
     waitTime: { title: 'Emergency Department Wait Time', icon: FaHistory, color: "#f39c12" },
     fatigue: { title: 'Staff Duty Load', icon: FaUserMd, color: "#d35400" },
@@ -48,7 +47,7 @@ const Toast = ({ message, type, onClose }: { message: string | null, type: strin
 };
 
 
-function HospitalAppHeader({ selectedHospital, activePortal, setActivePortal, onLogout, isSidebarCollapsed, setIsSidebarCollapsed, onGoToIntro }:
+function HospitalAppHeader({ selectedHospital, activePortal, setActivePortal, isSidebarCollapsed, setIsSidebarCollapsed, onGoToIntro }:
     { selectedHospital: LiveHospitalData; activePortal: Portal; setActivePortal: (p: Portal) => void; onLogout: () => void; isSidebarCollapsed: boolean; setIsSidebarCollapsed: (c: boolean) => void; onGoToIntro: () => void; }) {
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const t = useTranslations();
@@ -136,7 +135,7 @@ const HospitalSidebar = ({ setIsAuthenticated, activeMenu, setActiveMenu, isColl
     );
 };
 
-const movingAverage = (data: HistoricalDataPoint[], dataKey: Metric | "avgICUOccupancy", windowSize: number = 5): HistoricalDataPoint[] => {
+const movingAverage = (data: HistoricalDataPoint[], dataKey: keyof HistoricalDataPoint, windowSize: number = 5): HistoricalDataPoint[] => {
     if (!data || data.length === 0) return [];
 
     const actualWindowSize = data.length > 30 ? 5 : windowSize;
@@ -213,16 +212,6 @@ const KpiCard = ({ title, value, unit = '', icon: Icon, color, onClick, details,
 };
 
 
-const ProgressBar = ({ value, total, color }: { value: number, total: number, color: string }) => {
-    const percentage = Math.min(100, (value / total) * 100);
-    return (
-        <div className="w-full bg-gray-200 rounded-full h-4 relative">
-            <div className="h-4 rounded-full" style={{ width: `${percentage}%`, backgroundColor: color }}></div>
-            <span className='absolute inset-0 text-center text-xs font-bold text-white'>{percentage.toFixed(0)}%</span>
-        </div>
-    );
-};
-
 // --- VIEWS ---
 
 const DashboardView = ({ hospital, onCardClick, activityFeed }: { hospital: LiveHospitalData, onCardClick: (metric: Metric) => void, activityFeed: string[] }) => {
@@ -290,7 +279,7 @@ const DashboardView = ({ hospital, onCardClick, activityFeed }: { hospital: Live
     );
 };
 
-const ComplianceChecklist = ({ checklist, setChecklist }) => (
+const ComplianceChecklist = ({ checklist, setChecklist }: {checklist: {bedsVerified: boolean, suppliesVerified: boolean, profileVerified: boolean}, setChecklist: React.Dispatch<React.SetStateAction<{bedsVerified: boolean, suppliesVerified: boolean, profileVerified: boolean}>>}) => (
     <div className="bg-white p-3 rounded-lg shadow-md flex-shrink-0">
         <h2 className="text-lg font-bold text-gray-700 mb-2">Pre-Submission Checklist</h2>
         <ul className="text-sm space-y-1.5 text-gray-600">
@@ -311,7 +300,6 @@ const ComplianceChecklist = ({ checklist, setChecklist }) => (
 );
 
 const ManualReportingView = ({ hospital, setNodalConfigOverride, auditLog, setAuditLog, showToast, lastCriticalUpdate }: { hospital: LiveHospitalData, setNodalConfigOverride: (config: any) => void, auditLog: AuditLogEntry[], setAuditLog: React.Dispatch<React.SetStateAction<AuditLogEntry[]>>, showToast: (msg: string, type: string) => void, lastCriticalUpdate: number }) => {
-    const t = useTranslations();
     const sessionStartTime = useMemo(() => new Date().toLocaleTimeString(), []);
 
     const HOURLY_CHECK_DURATION_MS = 1 * 60 * 60 * 1000;
@@ -507,8 +495,6 @@ const MetricDetailModal = ({ hospital, historyData, metric, onClose }: { hospita
     const [period, setPeriod] = useState<HistoricalPeriod>('24h');
     const [liveChartData, setLiveChartData] = useState<HistoricalDataPoint[]>([]);
 
-    const t = useTranslations();
-
     useEffect(() => {
         if (metric) {
             setCurrentPage(METRICS.indexOf(metric));
@@ -567,7 +553,7 @@ const MetricDetailModal = ({ hospital, historyData, metric, onClose }: { hospita
 
     const displayData = useMemo(() => {
         let dataToProcess: HistoricalDataPoint[] = [];
-        let keyToSmooth: Metric | "avgICUOccupancy" = currentMetric;
+        let keyToSmooth: keyof HistoricalDataPoint = 'avgOccupancy'; // Default
 
         if (period === '24h') {
             dataToProcess = liveChartData;
@@ -582,23 +568,29 @@ const MetricDetailModal = ({ hospital, historyData, metric, onClose }: { hospita
             const smoothedICU = movingAverage(dataToProcess, 'avgICUOccupancy', 3);
             return smoothedBed.map((point, i) => ({ ...point, avgICUOccupancy: smoothedICU[i].avgICUOccupancy }));
         }
+        
+        // Map metric to the correct data key
+        if(currentMetric === 'waitTime') keyToSmooth = 'avgWaitTime';
+        if(currentMetric === 'fatigue') keyToSmooth = 'staffFatigue';
+        if(currentMetric === 'satisfaction') keyToSmooth = 'satisfaction';
+
 
         return movingAverage(dataToProcess, keyToSmooth, 3);
 
     }, [historyData, period, liveChartData, currentMetric]);
 
-    const LineChart = ({ data, dataKeys, yMax, colors, benchmark, benchmarkLabel, zones, yMin = 0, yAxisCustomMarks }) => {
+    const LineChart = ({ data, dataKeys, yMax, colors, benchmark, benchmarkLabel, zones, yMin = 0, yAxisCustomMarks }: { data: HistoricalDataPoint[], dataKeys: (keyof HistoricalDataPoint)[], yMax: number, colors: string[], benchmark?: number, benchmarkLabel?: string, zones?: {min: number, max: number, color: string}[], yMin?: number, yAxisCustomMarks: string[] }) => {
         const svgRef = useRef<SVGSVGElement>(null);
         const width = 700; const height = 220;
         const padding = { top: 10, right: 100, bottom: 30, left: 40 };
 
-        const customLabelColors = {
-            100: '#6b7280', 85: '#e74c3c', 80: '#27ae60', 70: '#e67e22', 65: '#e74c3c',
-            50: '#6b7280', 25: '#6b7280', 120: '#e74c3c', 180: '#e74c3c', 0: '#6b7280'
+        const customLabelColors: Record<string, string> = {
+            '100': '#6b7280', '85': '#e74c3c', '80': '#27ae60', '70': '#e67e22', '65': '#e74c3c',
+            '50': '#6b7280', '25': '#6b7280', '120': '#e74c3c', '180': '#e74c3c', '0': '#6b7280'
         };
 
-        const scaleX = (index) => padding.left + (index / (data.length - 1)) * (width - padding.left - padding.right);
-        const scaleY = (value) => {
+        const scaleX = (index: number) => padding.left + (index / (data.length - 1)) * (width - padding.left - padding.right);
+        const scaleY = (value: number) => {
             const clampedValue = Math.max(yMin, Math.min(yMax, value));
             return height - padding.bottom - (((clampedValue - yMin) / (yMax - yMin)) * (height - padding.top - padding.bottom));
         };
@@ -847,7 +839,7 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
     const [historyMetric, setHistoryMetric] = useState<Metric | null>(null);
     const [toast, setToast] = useState<{message: string | null, type: string | null}>({ message: null, type: null });
     const [isLoading, setIsLoading] = useState(true);
-    const [dataQuality, setDataQuality] = useState(98.7);
+    const [_dataQuality, setDataQuality] = useState(98.7);
     const [syncStatus, setSyncStatus] = useState({ color: 'text-green-400', text: 'Live Feed Established' });
 
     const [lastCriticalUpdate, setLastCriticalUpdate] = useState(Date.now());
@@ -855,15 +847,14 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
     const t = useTranslations();
 
     const dataQualityRef = useRef(98.7);
-    dataQualityRef.current = dataQuality;
     const isAuthenticatedRef = useRef(false);
     isAuthenticatedRef.current = isAuthenticated;
     const initialAlertsRunRef = useRef(false);
     const recurringTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const generateVariableETA = useCallback(() => Math.floor(Math.random() * 11) + 5, []);
-    const randomInt = useCallback((min, max) => Math.floor(Math.random() * (max - min + 1)) + min, []);
-    const randomFloat = useCallback((min, max) => (Math.random() * (max - min) + min).toFixed(1), []);
+    const randomInt = useCallback((min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min, []);
+    const randomFloat = useCallback((min: number, max: number) => (Math.random() * (max - min) + min).toFixed(1), []);
 
 
     const selectedHospital = useMemo(() => liveData.find(h => h.id === HOSPITAL_ID_CONTEXT), [liveData]);

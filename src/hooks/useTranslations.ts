@@ -7,7 +7,7 @@ export const useTranslations = () => {
   const { language } = useContext(LanguageContext);
 
   const t = (key: string, replacements?: { [key: string]: string | number }) => {
-    let translation = translations[language]?.[key] || key;
+    let translation = (translations[language] as any)?.[key] || key;
     
     if (replacements) {
         Object.keys(replacements).forEach(placeholder => {

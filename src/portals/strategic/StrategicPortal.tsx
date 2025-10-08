@@ -1,10 +1,10 @@
 // src/portals/strategic/StrategicPortal.tsx
 
 import React, { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-import type { LiveHospitalData, Portal, MciState } from '../../types';
+import type { MciState, Portal, LiveHospitalData } from '../../types';
 import { StrategicContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
-import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaUsers, FaBed, FaChartLine, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaBiohazard, FaHourglassHalf, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
+import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaBiohazard, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle, IconType } from 'react-icons/fa';
 import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
@@ -73,8 +73,8 @@ const PortalHeader = ({ activePortal, setActivePortal, onLogout, isSidebarCollap
                     <FaHome />
                 </button>
                 <div className="relative">
-                    <button 
-                        onClick={() => setDropdownOpen(p => !p)} 
+                    <button
+                        onClick={() => setDropdownOpen(p => !p)}
                         className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors"
                     >
                         {t(`portal.${activePortal.toLowerCase()}`)} <FaChevronDown size={12} />
@@ -117,22 +117,22 @@ const StrategicSidebar = ({ isCollapsed, lastUpdated }: { isCollapsed: boolean, 
         <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-slate-900 text-white flex flex-col shadow-2xl flex-shrink-0 h-full transition-all duration-300 z-10`}>
             <div className={`p-4 bg-slate-800 flex items-center border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
                 <div className="w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0">SC</div>
-                {!isCollapsed && ( 
-                    <div className="ml-3"> 
-                        <p className="text-sm font-semibold text-white">Strategic Command</p> 
+                {!isCollapsed && (
+                    <div className="ml-3">
+                        <p className="text-sm font-semibold text-white">Strategic Command</p>
                         <p className="text-xs text-gray-300">MoHFW</p>
                         <div className="mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-green-600 inline-block">Active Session</div>
-                    </div> 
+                    </div>
                 )}
             </div>
             <nav className="flex-grow p-4 space-y-1">
-                <button 
-                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`} 
+                <button
+                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`}
                     title="National Overview"
                 >
-                    <FaSitemap size={20} /> 
-                    {!isCollapsed && <span className="truncate">National Overview</span>} 
-                </button> 
+                    <FaSitemap size={20} />
+                    {!isCollapsed && <span className="truncate">National Overview</span>}
+                </button>
             </nav>
             {!isCollapsed && (
                 <div className="p-4 mt-auto border-t border-gray-700">
@@ -146,7 +146,7 @@ const StrategicSidebar = ({ isCollapsed, lastUpdated }: { isCollapsed: boolean, 
     );
 };
 
-const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClick, trend }) => {
+const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClick, trend }: { title: string, value: string, unit?: string, color: string, icon: IconType, isAlert: boolean, onClick?: () => void, trend: string }) => {
     const TrendIcon = trend === 'up' ? FaArrowUp : FaArrowDown;
     let trendColor = '';
     if (trend === 'up') {
@@ -201,8 +201,8 @@ const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: {
                         <FaHome />
                     </button>
                     <div className="relative">
-                        <button 
-                            onClick={() => setDropdownOpen(p => !p)} 
+                        <button
+                            onClick={() => setDropdownOpen(p => !p)}
                             className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors"
                         >
                             {t(`portal.${activePortal.toLowerCase()}`)} <FaChevronDown size={12}/>
@@ -250,15 +250,15 @@ const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: {
     );
 };
 
-const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }) => {
+const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onClose: () => void, criticalHospitals: LiveHospitalData[], liveData: LiveHospitalData[]}) => {
     const regionalData = useMemo(() => {
-        const regions = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
-        const criticalCounts = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
+        const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
+        const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
         criticalHospitals.forEach(h => {
             if (criticalCounts[h.region] !== undefined) criticalCounts[h.region]++;
         });
         
-        return ['North', 'West', 'Central', 'East', 'South'].map(regionName => ({
+        return (['North', 'West', 'Central', 'East', 'South'] as const).map(regionName => ({
             name: regionName,
             percentage: Math.round((criticalCounts[regionName] / regions[regionName]) * 100)
         }));
@@ -287,7 +287,7 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }) => {
     );
 };
 
-const RegionalHotspotsChart = ({ stats }) => {
+const RegionalHotspotsChart = ({ stats }: { stats: { region: string, avgOccupancy: number }[] }) => {
     return (
         <div className="bg-white p-3 rounded-lg shadow-lg h-full flex flex-col border border-slate-200">
             <h2 className="text-base font-bold flex items-center gap-2 flex-shrink-0 font-display" style={{ color: COLORS.textDark }}><FaMapMarkedAlt /> Zonal Bed Occupancy</h2>
@@ -314,8 +314,8 @@ const RegionalHotspotsChart = ({ stats }) => {
     );
 };
 
-const SystemHealthPanel = ({ stats }) => {
-    const ProgressBar = ({ value, color, label }) => (
+const SystemHealthPanel = ({ stats }: { stats: { publicSectorOccupancy: number, privateSectorOccupancy: number } }) => {
+    const ProgressBar = ({ value, color, label }: { value: number, color: string, label: string }) => (
         <div>
             <div className="flex justify-between items-baseline mb-0.5">
                 <span className="text-xs font-semibold" style={{ color: COLORS.textMedium }}>{label}</span>
@@ -344,7 +344,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
     const { liveData, mciState, setMciState, nationalHistory } = useContext(StrategicContext);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); 
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [ping, setPing] = useState(85);
     const [mciRegion, setMciRegion] = useState<MciState['region'] | 'None'>('None');
     const [mciConfirmText, setMciConfirmText] = useState('');
@@ -382,7 +382,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
         const latest = nationalHistory[nationalHistory.length - 1];
         const previous = nationalHistory[nationalHistory.length - 2];
 
-        const getTrend = (current, prev) => {
+        const getTrend = (current: number, prev: number) => {
             if (current > prev) return 'up';
             if (current < prev) return 'down';
             return 'stable';
@@ -433,14 +433,14 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
 
     const eligibleMciRegions = useMemo(() => {
         if(!nationalStats) return [];
-        const regions = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
-        const criticalCounts = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
+        const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
+        const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
         const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
         criticalHospitals.forEach(h => {
             if (criticalCounts[h.region] !== undefined) criticalCounts[h.region]++;
         });
         
-        return Object.keys(regions).filter(regionName => {
+        return (Object.keys(regions) as (keyof typeof regions)[]).filter(regionName => {
             const percentage = (criticalCounts[regionName] / regions[regionName]) * 100;
             return percentage >= 90;
         });
@@ -465,8 +465,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
         return <LoginPage onLogin={() => setIsAuthenticated(true)} t={t} activePortal={activePortal} setActivePortal={setActivePortal} onGoToIntro={onGoToIntro} />;
     }
 
-    if (!nationalStats) { 
-        return <div className="flex h-screen items-center justify-center bg-slate-100"><FaSpinner className="animate-spin text-slate-800" size={48} /></div>; 
+    if (!nationalStats) {
+        return <div className="flex h-screen items-center justify-center bg-slate-100"><FaSpinner className="animate-spin text-slate-800" size={48} /></div>;
     }
 
     const canDeclareMci = mciRegion !== 'None' && mciConfirmText === 'CONFIRM';
@@ -513,10 +513,10 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                                                 <label className="text-xs font-semibold" style={{ color: COLORS.textMedium }}>2. Confirm</label>
                                                 <input type="text" value={mciConfirmText} onChange={e => setMciConfirmText(e.target.value)} placeholder="Type 'CONFIRM'" className="w-full p-1 border rounded text-xs border-slate-300" />
                                             </div>
-                                             <button 
+                                             <button
                                                 onClick={handleDeclareMci}
                                                 disabled={!canDeclareMci}
-                                                className={`w-full font-bold py-1 rounded-lg text-white text-base transition-all duration-300 ${canDeclareMci ? 'bg-red-600 hover:bg-red-700 control-centre-button' : 'bg-gray-400 cursor-not-allowed'}`} 
+                                                className={`w-full font-bold py-1 rounded-lg text-white text-base transition-all duration-300 ${canDeclareMci ? 'bg-red-600 hover:bg-red-700 control-centre-button' : 'bg-gray-400 cursor-not-allowed'}`}
                                             >
                                                 DECLARE SHORTAGE
                                             </button>

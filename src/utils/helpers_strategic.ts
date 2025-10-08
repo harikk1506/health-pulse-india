@@ -1,7 +1,7 @@
 // src/utils/helpers_strategic.ts
 
 import { useState, useEffect, useRef } from 'react';
-import type { Hospital, LiveHospitalData, BedStatus, HistoricalStat, MciState, NodalConfig, HistoricalDataPoint } from '../types';
+import type { Hospital, LiveHospitalData, MciState, NodalConfig, HistoricalDataPoint, HistoricalStat } from '../types';
 import originalHospitalData from '../data/hospitals.json';
 
 const MAX_TRANSFER_DISTANCE_KM = 85;
@@ -33,7 +33,7 @@ export const generateInitialNationalHistory = (): HistoricalStat[] => {
         const avgWaitTime = (initialData.reduce((acc, h) => acc + h.currentWaitTime, 0) / initialData.length) * (0.95 + dayFactor * 0.05) + (Math.random() - 0.5) * 5;
 
         // Simulate historical regional data
-        const regionalOccupancy = {};
+        const regionalOccupancy: Record<string, number> = {};
         ['North', 'South', 'East', 'West', 'Central'].forEach(region => {
              regionalOccupancy[region] = avgOccupancy * (0.98 + (Math.random() * 0.04));
         });
@@ -64,7 +64,7 @@ export const getDynamicETA = (distanceKm: number, trafficMultiplier: number) => 
 
 export const useGeolocation = (
     portalType: 'public' | 'emergency',
-    missionPhase?: string,
+    _missionPhase?: string,
     destinationCoords?: [number, number] | null,
     isMissionActive?: boolean,
     simulationDuration?: number
@@ -335,9 +335,9 @@ export const updateLiveMetrics = (
     ...hospital, totalBeds, totalICU,
     ALOS_days: alos_days,
     oxygen_supply_days: oxygen_supply_days,
-    occupiedBeds: occupiedBeds, 
+    occupiedBeds: occupiedBeds,
     occupiedICUBeds: occupiedICUBeds,
-    availableBeds: totalBeds - occupiedBeds, 
+    availableBeds: totalBeds - occupiedBeds,
     availableICUBeds: totalICU - occupiedICUBeds,
     bedOccupancy,
     icuBedOccupancy: Math.min(100, icuBedOccupancy),
