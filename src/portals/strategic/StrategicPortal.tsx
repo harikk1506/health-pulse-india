@@ -1,13 +1,9 @@
 import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-// FIX: Corrected import path depth to '../../'
-import type { Portal, LiveHospitalData, HistoricalStat, GlobalContextType } from '../../types'; 
-// FIX: Corrected import path depth to '../../'
+import type { Portal, LiveHospitalData, HistoricalStat } from '../../types';
 import { StrategicContext } from '../../App';
-// FIX: Corrected import path depth to '../../'
 import { useTranslations } from '../../hooks/useTranslations';
 import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
 import { IconType } from 'react-icons'; 
-// FIX: Corrected import path depth to '../../'
 import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
@@ -220,7 +216,7 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
 const LogoutScreen = () => (
     <div className="fixed inset-0 bg-slate-800 bg-opacity-90 flex flex-col items-center justify-center z-[200]">
         <FaSpinner className="animate-spin text-white text-4xl" />
-        <p className="mt-4 text-white font-semibold">Logging out and clearing strategic session...</p>
+        <p className="mt-4 text-white font-semibold">Logging out and clearing session...</p>
     </div>
 );
 
@@ -300,8 +296,7 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onCl
     const regionalData = useMemo(() => {
         const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
         const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
-        // FIX: Explicitly type parameter 'h'
-        criticalHospitals.forEach((h: LiveHospitalData) => { 
+        criticalHospitals.forEach(h => {
             if (regions[h.region] !== undefined) {
                  // TS7053 Fix: Safe indexing
                 criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
@@ -322,8 +317,7 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onCl
             </div>
             <div className='p-6 space-y-4'>
                 <div className="text-center">
-                    <p className='font-semibold text-gray-700'>Percentage of hospitals in each zone with bed occupancy over 85%
-                    </p>
+                    <p className='font-semibold text-gray-700'>Percentage of hospitals in each zone with bed occupancy over 85%.</p>
                 </div>
                 <div className="text-lg space-y-2">
                     {regionalData.map(({name, percentage}) => (
@@ -395,8 +389,7 @@ const SystemHealthPanel = ({ stats }: { stats: NationalStatsType }) => {
 // --- MAIN STRATEGIC PORTAL COMPONENT ---
 
 const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: GenericProps) => {
-    // FIX: Explicitly type the destructured values from useContext(StrategicContext)
-    const { liveData, mciState, setMciState, nationalHistory } = useContext(StrategicContext) as GlobalContextType; 
+    const { liveData, mciState, setMciState, nationalHistory } = useContext(StrategicContext);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -444,13 +437,11 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             return 'stable';
         };
 
-        // FIX: Explicitly type parameter 'h'
-        const criticalHospitals = liveData.filter((h: LiveHospitalData) => h.bedOccupancy > 85); 
+        const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
         const criticalHospitalPercent = (criticalHospitals.length / liveData.length) * 100;
         const prevCriticalHospitalsCount = previous.criticalHospitals;
         
-        // FIX: Explicitly type parameter 'h'
-        const resourceStrainedHospitals = liveData.filter((h: LiveHospitalData) => h.oxygen_supply_days < 10 || h.ppe_stock_level === 'Critical' || h.ppe_stock_level === 'Stockout');
+        const resourceStrainedHospitals = liveData.filter(h => h.oxygen_supply_days < 10 || h.ppe_stock_level === 'Critical' || h.ppe_stock_level === 'Stockout');
         const adequateResourcePercent = (1 - (resourceStrainedHospitals.length / liveData.length)) * 100;
         const prevAdequateResourcePercent = (1 - (nationalHistory[nationalHistory.length - 2].criticalHospitals / liveData.length)) * 100;
 
@@ -466,10 +457,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             avgWaitTime: latest.avgWaitTime,
             trend_wait: getTrend(previous.avgWaitTime, latest.avgWaitTime), 
             
-            // FIX: Explicitly type parameters 'acc' and 'h'
-            avgALOS: liveData.reduce((acc: number, h: LiveHospitalData) => acc + h.ALOS_days, 0) / liveData.length,
-            // FIX: Explicitly type parameters 'acc' and 'h'
-            trend_alos: getTrend(liveData.reduce((acc: number, h: LiveHospitalData) => acc + h.ALOS_days, 0), liveData.reduce((acc: number, h: LiveHospitalData) => acc + h.ALOS_days, 0)), 
+            avgALOS: liveData.reduce((acc, h) => acc + h.ALOS_days, 0) / liveData.length,
+            trend_alos: getTrend(liveData.reduce((acc, h) => acc + h.ALOS_days, 0), liveData.reduce((acc, h) => acc + h.ALOS_days, 0)), 
             
             adequateResourcePercent: adequateResourcePercent,
             trend_resources: getTrend(adequateResourcePercent, prevAdequateResourcePercent), 
@@ -504,12 +493,9 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         if(!nationalStats) return [];
         const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
         const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
+        const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
         
-        // FIX: Explicitly type parameter 'h'
-        const criticalHospitals = liveData.filter((h: LiveHospitalData) => h.bedOccupancy > 85);
-        
-        // FIX: Explicitly type parameter 'h'
-        criticalHospitals.forEach((h: LiveHospitalData) => {
+        criticalHospitals.forEach(h => {
             // FIX: Ensure safe indexing into criticalCounts (TS7053)
             criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
         });
@@ -535,8 +521,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         }
     };
     
-    // FIX: Explicitly type parameter 'h'
-    const criticalHospitals = liveData.filter((h: LiveHospitalData) => h.bedOccupancy > 85);
+    const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
     const canDeclareMci = mciRegion !== 'None' && mciConfirmText === 'CONFIRM' && eligibleMciRegions.includes(mciRegion);
     
     if (isLoggingOut) return <LogoutScreen />;
@@ -551,34 +536,32 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     }
 
     return (
-        // ADDED overflow-x-hidden to the main container to prevent the horizontal scrollbar at 100% zoom
-        <div className="flex flex-col h-screen font-sans overflow-hidden bg-slate-100 overflow-x-hidden">
+        <div className="flex flex-col h-screen font-sans overflow-hidden bg-slate-100">
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
-                {/* Removed extra padding/margin from main container to prevent 100% zoom scroll issue */}
-                <main className="flex-grow flex flex-col p-3 overflow-y-auto gap-3">
+                {/* ADJUSTMENT: Using p-2.5 and gap-2 to achieve perfect fit and remove the scrollbar */}
+                <main className="flex-grow flex flex-col p-2.5 overflow-y-auto gap-2">
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
-                    <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 border-t-4 border-slate-800 divide-x divide-slate-200'>
-                        {/* All KPI calls now include an explicit onClick handler, fixing TS2741 */}
+                    <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
+                        {/* NOTE: Removed border-t-4 border-slate-800 from this div to remove the extra black line */}
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={() => {}} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
                         <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={() => {}} />
                         <KpiMetric title="Avg. Length of Stay" value={nationalStats.avgALOS.toFixed(1)} unit=" days" color={COLORS.safeGreen} icon={FaProcedures} isAlert={nationalStats.avgALOS > 6} trend={nationalStats.trend_alos} onClick={() => {}} />
-                        {/* FIX: Corrected isAlert logic to use avgStaffFatigue, resolving TS2339 */}
                         <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" color={COLORS.staffFatigue} icon={FaUserMd} isAlert={nationalStats.avgStaffFatigue > 70} trend={nationalStats.trend_fatigue} onClick={() => {}}/>
                         <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" color={COLORS.patientSatisfaction} icon={FaSmile} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={() => {}}/>
                     </div>
 
                     {/* CHART AND ALERT PANELS (2-column split layout from Screenshot 308) */}
-                    <div className="flex-grow grid grid-cols-12 gap-3">
+                    <div className="flex-grow grid grid-cols-12 gap-2">
                         {/* Left Column: Zonal Chart (col-span-7) */}
                         <div className="col-span-7">
                             <RegionalHotspotsChart stats={regionalStats} />
                         </div>
                         
                         {/* Right Column: Performance Index and BCAP Panel (col-span-5) */}
-                        <div className="col-span-5 flex flex-col gap-3">
+                        <div className="col-span-5 flex flex-col gap-2">
                             <SystemHealthPanel stats={nationalStats} />
                             <div className="bg-white p-3 rounded-lg shadow-lg flex-grow flex flex-col border border-slate-200">
                                 <h2 className="text-base font-bold flex items-center gap-2" style={{ color: COLORS.textDark }}><FaShieldAlt /> Bed Capacity Alert Panel (BCAP)</h2>
