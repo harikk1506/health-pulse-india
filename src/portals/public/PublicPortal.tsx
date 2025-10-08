@@ -132,3 +132,11 @@ const PublicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePo
             <div className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl overflow-hidden">
                 {selectedHospital && <HospitalDetailView hospital={selectedHospital} onBack={() => setSelectedHospital(null)} />}
             </div>
+         </div>
+      </CSSTransition>
+      {showRecommendations && <RecommendationModal recommendations={recommendations} onClose={() => setShowRecommendations(false)} onSelectHospital={handleSelectFromRecommendation} />}
+    </div>
+  );
+};
+
+export default PublicPortal;
