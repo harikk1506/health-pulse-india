@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import type { LiveHospitalData } from '../../../types';
 
-// FIX: Removed the redundant 'liveData' prop to fix the TypeScript error (TS2322)
 export const CriticalHospitalsModal = ({ onClose, criticalHospitals }: { onClose: () => void, criticalHospitals: LiveHospitalData[]}) => {
     const regionalData = useMemo(() => {
         // Define total hospitals per region based on your dataset
