@@ -263,7 +263,7 @@ const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: G
                                 {portals.map(p => (
                                     <button
                                         key={p}
-                                        onClick={() => { setActivePortal(p); setDropdownPortal(false); }}
+                                        onClick={() => { setActivePortal(p); setDropdownOpen(false); }}
                                         className={`w-full text-left px-3 py-2 text-sm transition-colors ${activePortal === p ? 'bg-slate-800 text-white font-bold' : 'text-gray-700 hover:bg-gray-100'}`}
                                     >
                                         {t(`portal.${p.toLowerCase()}`)}
@@ -548,7 +548,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
-                {/* START FIX: Reduced padding from p-2.5 to p-2 for main content area to solve scrollbar issue */}
+                {/* START FIX: Padding adjusted to p-2 for optimal fit */}
                 <main className="flex-grow flex flex-col p-2 overflow-y-auto gap-2">
                 {/* END FIX */}
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
