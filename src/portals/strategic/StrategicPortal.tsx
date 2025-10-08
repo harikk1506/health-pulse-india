@@ -14,22 +14,20 @@ import { CriticalHospitalsModal } from './components/CriticalHospitalsModal';
 import { Toast } from './components/Toast';
 
 const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePortal: Portal, setActivePortal: (p: Portal) => void, onGoToIntro: () => void }) => {
-    // FIX: Keep only used context access
-    const { liveData, setMciState, nationalHistory } = useContext(StrategicContext); 
+    // FIX: Only import used variables from context (liveData, nationalHistory)
+    const { liveData, nationalHistory } = useContext(StrategicContext); 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [ping, setPing] = useState(85);
-    // State related to unused MCI declaration logic removed for compilation FIX
+    // FIX: Kept mciRegion state as it uses MciState type, but removed mciConfirmText
+    const [mciRegion] = useState<MciState['region'] | 'None'>('None'); 
     const [showCriticalModal, setShowCriticalModal] = useState(false);
     const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
     const [toast, setToast] = useState<{message: string | null, type: string | null}>({ message: null, type: null });
     const modalRef = useRef(null);
 
-    const showToast = useCallback((message: string, type = 'success') => {
-        setToast({ message, type });
-        setTimeout(() => setToast({ message: null, type: null }), 5000);
-    }, []);
+    // FIX: Removed unused showToast callback (TS6133)
 
     const handleLogout = () => {
         setIsLoggingOut(true);
@@ -49,11 +47,11 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
     }, []);
 
     const nationalStats = useMemo(() => {
-        // Placeholder logic
+        // Placeholder implementation 
         return null; 
     }, [liveData, nationalHistory]);
     
-    // Unused variables for regional stats and MCI eligibility removed for TS6133 Fix.
+    // FIX: Removed unused memoized functions (TS6133)
     
     if (isLoggingOut) return <LogoutScreen />;
     if (!isAuthenticated) {
@@ -63,6 +61,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
     if (!nationalStats) { 
         return <div className="flex h-screen items-center justify-center bg-slate-100"><i className="fas fa-spinner fa-spin text-4xl text-slate-800"></i></div>; 
     }
+
+    // FIX: Removed unused derived variable (TS6133)
 
     return (
         <div className="flex flex-col h-screen font-sans overflow-hidden bg-slate-100">
