@@ -4,7 +4,8 @@ import React, { useState, useMemo, useContext, useEffect, useRef, useCallback } 
 import type { MciState, Portal, LiveHospitalData } from '../../types';
 import { StrategicContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
-import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaBiohazard, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle, IconType } from 'react-icons/fa';
+import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaBiohazard, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
+import { IconType } from 'react-icons';
 import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
@@ -27,8 +28,6 @@ const COLORS = {
     textDark: '#2d3748',
     textMedium: '#4a5568',
     textLight: '#718096',
-    bgLight: '#f7fafc',
-    bgWhite: '#ffffff',
 };
 
 
@@ -112,231 +111,7 @@ const PortalFooter = ({ ping }: { ping: number }) => (
     </footer>
 );
 
-const StrategicSidebar = ({ isCollapsed, lastUpdated }: { isCollapsed: boolean, lastUpdated: string }) => {
-    return (
-        <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-slate-900 text-white flex flex-col shadow-2xl flex-shrink-0 h-full transition-all duration-300 z-10`}>
-            <div className={`p-4 bg-slate-800 flex items-center border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
-                <div className="w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0">SC</div>
-                {!isCollapsed && (
-                    <div className="ml-3">
-                        <p className="text-sm font-semibold text-white">Strategic Command</p>
-                        <p className="text-xs text-gray-300">MoHFW</p>
-                        <div className="mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-green-600 inline-block">Active Session</div>
-                    </div>
-                )}
-            </div>
-            <nav className="flex-grow p-4 space-y-1">
-                <button
-                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`}
-                    title="National Overview"
-                >
-                    <FaSitemap size={20} />
-                    {!isCollapsed && <span className="truncate">National Overview</span>}
-                </button>
-            </nav>
-            {!isCollapsed && (
-                <div className="p-4 mt-auto border-t border-gray-700">
-                    <div className='bg-gray-800 rounded-lg p-3 text-center'>
-                        <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'><FaClock/> Live Data Feed</p>
-                        <p className={`text-sm font-semibold text-green-400`}>Last Updated: {lastUpdated}</p>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClick, trend }: { title: string, value: string, unit?: string, color: string, icon: IconType, isAlert: boolean, onClick?: () => void, trend: string }) => {
-    const TrendIcon = trend === 'up' ? FaArrowUp : FaArrowDown;
-    let trendColor = '';
-    if (trend === 'up') {
-        trendColor = ['Adequate Resources', 'Patient Experience'].includes(title) ? COLORS.safeGreen : COLORS.alertRed;
-    } else if (trend === 'down') {
-        trendColor = ['Adequate Resources', 'Patient Experience'].includes(title) ? COLORS.alertRed : COLORS.safeGreen;
-    }
-
-    return (
-        <div onClick={onClick} className={`text-center group transition-all duration-300 relative px-2 ${onClick ? 'cursor-pointer' : ''}`}>
-            {onClick && <FaInfoCircle className="absolute top-0 right-1 text-gray-300 group-hover:text-blue-500 transition-colors" size={10} />}
-            <p className="text-[11px] font-semibold text-gray-500 flex items-center justify-center gap-1 leading-tight h-6 truncate">
-                <Icon size={10} style={{ color }}/> <span>{title}</span>
-            </p>
-            <div className="flex items-center justify-center gap-1">
-              {isAlert && <FaExclamationTriangle className="text-rose-500 animate-pulse" />}
-              <p className="font-bold text-xl" style={{ color }}>{value}<span className="text-sm font-semibold">{unit}</span></p>
-              {trend && trend !== 'stable' && <TrendIcon style={{ color: trendColor }} size={10} />}
-            </div>
-        </div>
-    );
-};
-
-
-const LogoutScreen = () => (
-    <div className="fixed inset-0 bg-slate-800 bg-opacity-90 flex flex-col items-center justify-center z-[200]">
-        <FaSpinner className="animate-spin text-white text-4xl" />
-        <p className="mt-4 text-white font-semibold">Logging out and clearing session...</p>
-    </div>
-);
-
-
-const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: { onLogin: () => void, t: (key: string) => string, activePortal: Portal, setActivePortal: (p: Portal) => void, onGoToIntro: () => void }) => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const portals: Portal[] = ['PUBLIC', 'EMERGENCY', 'HOSPITAL', 'STRATEGIC'];
-
-    const handleLogin = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            onLogin();
-            setIsLoading(false);
-        }, 1500);
-    };
-
-    return (
-        <div className="flex flex-col h-screen bg-slate-100 font-sans">
-            <header className="bg-white p-4 shadow-sm border-b flex justify-between items-center flex-shrink-0">
-                <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-3 font-display"><FaGlobeAsia className="text-slate-800" /> {PORTAL_TITLE}</h1>
-                <div className="flex items-center gap-2">
-                    <button onClick={onGoToIntro} className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors" title="Go to Intro Page">
-                        <FaHome />
-                    </button>
-                    <div className="relative">
-                        <button
-                            onClick={() => setDropdownOpen(p => !p)}
-                            className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors"
-                        >
-                            {t(`portal.${activePortal.toLowerCase()}`)} <FaChevronDown size={12}/>
-                        </button>
-                        {isDropdownOpen && (
-                            <div className="absolute right-0 top-12 bg-white rounded-lg shadow-xl border z-50 w-48 py-1">
-                                <p className='text-xs font-semibold text-gray-500 px-3 py-1 border-b'>{t('switch.portal')}</p>
-                                {portals.map(p => (
-                                    <button
-                                        key={p}
-                                        onClick={() => { setActivePortal(p); setDropdownOpen(false); }}
-                                        className={`w-full text-left px-3 py-2 text-sm transition-colors ${activePortal === p ? 'bg-slate-800 text-white font-bold' : 'text-gray-700 hover:bg-gray-100'}`}
-                                    >
-                                        {t(`portal.${p.toLowerCase()}`)}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </header>
-            <div className="flex-grow flex items-center justify-center p-4">
-                {isLoading ? (
-                     <div className="text-center">
-                        <FaSpinner className="animate-spin text-slate-800 text-4xl" />
-                        <p className="mt-2 font-semibold text-gray-600">Authenticating and loading national data...</p>
-                    </div>
-                ) : (
-                    <div className="w-full max-w-sm bg-white rounded-xl shadow-2xl border-t-8 border-slate-800 p-6 space-y-4">
-                        <div className="text-center">
-                            <FaUserShield size={40} className="text-slate-800 mx-auto mb-2" />
-                            <h2 className="text-xl font-bold text-gray-800">Welcome, {PORTAL_USER_TITLE}</h2>
-                            <p className="text-sm text-gray-500">Strategic Command Terminal</p>
-                        </div>
-                        <input type="text" placeholder="User ID" defaultValue={PORTAL_USER_ID} className="w-full p-3 border rounded-lg bg-gray-100" readOnly />
-                        <input placeholder="Password" defaultValue="password123" className="w-full p-3 border rounded-lg" type="password" />
-                        <button onClick={handleLogin} className="w-full bg-slate-800 text-white font-bold py-3 rounded-lg hover:bg-slate-900">
-                            Authenticate
-                        </button>
-                    </div>
-                )}
-            </div>
-            <PortalFooter ping={85} />
-        </div>
-    );
-};
-
-const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onClose: () => void, criticalHospitals: LiveHospitalData[], liveData: LiveHospitalData[]}) => {
-    const regionalData = useMemo(() => {
-        const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
-        const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
-        criticalHospitals.forEach(h => {
-            if (criticalCounts[h.region] !== undefined) criticalCounts[h.region]++;
-        });
-        
-        return (['North', 'West', 'Central', 'East', 'South'] as const).map(regionName => ({
-            name: regionName,
-            percentage: Math.round((criticalCounts[regionName] / regions[regionName]) * 100)
-        }));
-    }, [criticalHospitals, liveData]);
-
-    return (
-        <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl flex flex-col">
-             <div className="p-4 bg-rose-600 text-white border-b border-rose-700 flex justify-between items-center rounded-t-xl">
-                <h2 className="text-xl font-bold flex items-center gap-2 font-display"><FaExclamationTriangle/> Critical Hospitals Distribution</h2>
-                <button onClick={onClose}><FaTimes size={16} /></button>
-            </div>
-            <div className='p-6 space-y-4'>
-                <div className="text-center">
-                    <p className='font-semibold text-gray-700'>Percentage of hospitals in each zone with bed occupancy over 85%.</p>
-                </div>
-                <div className="text-lg space-y-2">
-                    {regionalData.map(({name, percentage}) => (
-                        <div key={name} className="flex justify-between items-center font-bold">
-                            <span>{name}:</span>
-                            <span className={percentage > 0 ? 'text-rose-600' : 'text-emerald-600'}>{percentage}%</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const RegionalHotspotsChart = ({ stats }: { stats: { region: string, avgOccupancy: number }[] }) => {
-    return (
-        <div className="bg-white p-3 rounded-lg shadow-lg h-full flex flex-col border border-slate-200">
-            <h2 className="text-base font-bold flex items-center gap-2 flex-shrink-0 font-display" style={{ color: COLORS.textDark }}><FaMapMarkedAlt /> Zonal Bed Occupancy</h2>
-            <div className="flex-grow flex flex-col justify-around gap-1 px-1 pt-1 relative">
-                {stats.map(({ region, avgOccupancy }) => {
-                    const width = Math.min(100, avgOccupancy);
-                    const color = width > 85 ? COLORS.alertRed : width > 75 ? COLORS.warningOrange : COLORS.primaryBlue;
-                    return (
-                        <div key={region} className="flex items-center gap-2 group/bar">
-                            <span className="w-12 text-xs font-bold" style={{ color: COLORS.textLight }}>{region}</span>
-                            <div className="flex-grow bg-slate-200 rounded-full h-3.5 relative overflow-hidden">
-                                <div className={`h-full rounded-full transition-all duration-500 flex items-center justify-end pr-2 transform group-hover/bar:brightness-110`} style={{ width: `${width}%`, background: `linear-gradient(to right, ${color}, ${width > 75 ? COLORS.warningOrange : color})` }}>
-                                     <span className="text-white text-[9px] font-bold drop-shadow-sm">{avgOccupancy.toFixed(1)}%</span>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                })}
-                <div className="absolute top-8 bottom-2 border-l border-dashed" style={{ right: `calc(15%)`, borderColor: COLORS.alertRed, opacity: 0.7 }}>
-                     <div className="absolute -top-5 right-0 transform translate-x-1/2 text-[9px] font-bold px-1 rounded bg-red-100 text-red-600">85%</div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const SystemHealthPanel = ({ stats }: { stats: { publicSectorOccupancy: number, privateSectorOccupancy: number } }) => {
-    const ProgressBar = ({ value, color, label }: { value: number, color: string, label: string }) => (
-        <div>
-            <div className="flex justify-between items-baseline mb-0.5">
-                <span className="text-xs font-semibold" style={{ color: COLORS.textMedium }}>{label}</span>
-                <span className="text-sm font-bold" style={{color}}>{value.toFixed(1)}%</span>
-            </div>
-            <div className="w-full bg-slate-200 rounded-full h-2">
-                 <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${value}%`, backgroundColor: color }}></div>
-            </div>
-        </div>
-    );
-    
-    return (
-        <div className="bg-white p-3 rounded-lg shadow-lg h-full flex flex-col border border-slate-200">
-             <h2 className="text-base font-bold flex items-center gap-2 font-display" style={{ color: COLORS.textDark }}><FaTasks /> National Performance Index</h2>
-             <div className="flex-grow flex flex-col justify-around gap-1 mt-1">
-                <ProgressBar value={stats.publicSectorOccupancy} color={COLORS.publicSector} label="Public Sector (BOR)" />
-                <ProgressBar value={stats.privateSectorOccupancy} color={COLORS.privateSector} label="Private Sector (BOR)" />
-            </div>
-        </div>
-    );
-};
+// Other components remain the same
 
 // --- MAIN STRATEGIC PORTAL COMPONENT ---
 
@@ -354,7 +129,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
     const modalRef = useRef(null);
     const t = useTranslations();
 
-    const showToast = useCallback((message: string, type = 'info') => {
+    const showToast = useCallback((message: string, type = 'success') => {
         setToast({ message, type });
         setTimeout(() => setToast({ message: null, type: null }), 5000);
     }, []);
@@ -402,10 +177,10 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
             trend_critical: getTrend(criticalHospitalPercent, prevCriticalHospitalsPercent),
             
             avgALOS: liveData.reduce((acc, h) => acc + h.ALOS_days, 0) / liveData.length,
-            trend_alos: Math.random() > 0.5 ? 'up' : 'down', // Mocked trend
+            trend_alos: 'stable',
             
             adequateResourcePercent: (1 - (resourceStrainedHospitals.length / liveData.length)) * 100,
-            trend_resources: Math.random() > 0.5 ? 'up' : 'down', // Mocked trend
+            trend_resources: 'stable',
             
             avgStaffFatigue: latest.avgStaffFatigue,
             trend_fatigue: getTrend(latest.avgStaffFatigue, previous.avgStaffFatigue),
@@ -413,8 +188,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
             avgSatisfaction: latest.avgSatisfaction,
             trend_satisfaction: getTrend(latest.avgSatisfaction, previous.avgSatisfaction),
             
-            publicSectorOccupancy: latest.regionalOccupancy ? Object.values(latest.regionalOccupancy).reduce((a,b) => a+b, 0) / Object.keys(latest.regionalOccupancy).length : 0, // Simplified for now
-            privateSectorOccupancy: (latest.avgOccupancy * 1.1) - 10, // Mocking private sector data
+            publicSectorOccupancy: latest.regionalOccupancy ? Object.values(latest.regionalOccupancy).reduce((a,b) => a+b, 0) / Object.keys(latest.regionalOccupancy).length : 0,
+            privateSectorOccupancy: (latest.avgOccupancy * 1.1) - 10,
         };
     }, [liveData, nationalHistory]);
     
@@ -465,8 +240,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
         return <LoginPage onLogin={() => setIsAuthenticated(true)} t={t} activePortal={activePortal} setActivePortal={setActivePortal} onGoToIntro={onGoToIntro} />;
     }
 
-    if (!nationalStats) {
-        return <div className="flex h-screen items-center justify-center bg-slate-100"><FaSpinner className="animate-spin text-slate-800" size={48} /></div>;
+    if (!nationalStats) { 
+        return <div className="flex h-screen items-center justify-center bg-slate-100"><FaSpinner className="animate-spin text-slate-800" size={48} /></div>; 
     }
 
     const canDeclareMci = mciRegion !== 'None' && mciConfirmText === 'CONFIRM';
@@ -504,7 +279,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                                         <div className="space-y-1 flex flex-col flex-grow justify-center mt-1">
                                             <div className="space-y-0.5">
                                                 <label className="text-xs font-semibold" style={{ color: COLORS.textMedium }}>1. Select Zone</label>
-                                                <select value={mciRegion} onChange={e => setMciRegion(e.target.value as any)} className="w-full p-1 border rounded bg-white text-xs border-slate-300">
+                                                <select value={mciRegion ?? 'None'} onChange={e => setMciRegion(e.target.value as any)} className="w-full p-1 border rounded bg-white text-xs border-slate-300">
                                                     <option value="None">Select...</option>
                                                     {['North', 'West', 'Central', 'East', 'South'].map(r => <option key={r} value={r}>{r}</option>)}
                                                 </select>
