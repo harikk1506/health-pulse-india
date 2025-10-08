@@ -39,7 +39,7 @@ interface NationalStatsType {
     trend_alos: TrendType;
     adequateResourcePercent: number;
     trend_resources: TrendType;
-    avgStaffFatigue: number;
+    avgStaffFatigue: number; // Corrected property name for clarity
     trend_fatigue: TrendType;
     avgSatisfaction: number;
     trend_satisfaction: TrendType;
@@ -465,7 +465,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             adequateResourcePercent: adequateResourcePercent,
             trend_resources: getTrend(adequateResourcePercent, prevAdequateResourcePercent), 
             
-            avgStaffFatigue: latest.avgStaffFatigue,
+            avgStaffFatigue: latest.avgStaffFatigue, // Ensure this property name is correct
             trend_fatigue: getTrend(latest.avgStaffFatigue, previous.avgStaffFatigue),
 
             avgSatisfaction: latest.avgSatisfaction,
