@@ -1,7 +1,8 @@
 // src/IntroPage.tsx
 
-import React, { useState, useEffect } from 'react';
-import { FaUsers, FaAmbulance, FaHospitalUser, FaUniversity, FaArrowRight, FaBullseye, FaBookOpen, IconType } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaUsers, FaAmbulance, FaHospitalUser, FaUniversity, FaArrowRight, FaBullseye, FaBookOpen } from 'react-icons/fa';
+import { IconType } from 'react-icons';
 import IndianLogo from './assets/logo.svg';
 import type { Portal } from './types'; // Import Portal type
 

@@ -13,7 +13,7 @@ import { CSSTransition } from 'react-transition-group';
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY; // SECURE: Key is now loaded from .env file
 
 // Custom hook to handle clicks outside a component
-const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, callback: () => void) => {
+const useOutsideClick = (ref: React.RefObject<HTMLDivElement | null>, callback: () => void) => {
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (ref.current && !ref.current.contains(event.target as Node)) {
@@ -83,7 +83,7 @@ function AppHeader({ activePortal, setActivePortal, onRecommendClick, onGoToIntr
 
 // --- Filter Bar Component (Vertical Condensation & Filter Fix) ---
 function FilterBar({ filters, setFilters, sortKey, setSortKey, sortDirection, setSortDirection }:
-    { filters: Filters; setFilters: React.Dispatch<React.SetStateAction<Filters>>, sortKey: SortKey, setSortKey: (sk: SortKey) => void, sortDirection: 'asc' | 'desc', setSortDirection: (d: 'asc' | 'desc') => void }) {
+    { filters: Filters; setFilters: React.Dispatch<React.SetStateAction<Filters>>, sortKey: SortKey, setSortKey: (sk: SortKey) => void, sortDirection: 'asc' | 'desc', setSortDirection: React.Dispatch<React.SetStateAction<'asc' | 'desc'>> }) {
     const t = useTranslations();
     const [isFilterOpen, setFilterOpen] = useState(false);
     const [isSortOpen, setSortOpen] = useState(false);
@@ -214,7 +214,6 @@ const HospitalListItem = ({ hospital, onSelect }: { hospital: LiveHospitalData; 
 
 
 // --- Hospital Detail Modal (Apply distance limit) ---
-// --- Hospital Detail Modal (Apply distance limit) ---
 const HospitalDetailView = ({ hospital, onBack }: { hospital: LiveHospitalData; onBack: () => void; }) => {
     const t = useTranslations();
     const { isHospitalBlocked } = useContext(GlobalContext);
@@ -322,7 +321,7 @@ const LoadingScreen = () => {
             setMessage(messages[i]);
         }, 1500);
         return () => clearInterval(interval);
-    }, [messages]);
+    }, []);
 
     return (
         <div className="fixed inset-0 bg-slate-800 flex flex-col items-center justify-center z-50">
@@ -433,7 +432,7 @@ const PublicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePo
         return { ...h, distance, score, eta }; // Include ETA in the returned object
     });
     // Sort by calculated score (highest score first)
-    return scoredHospitals.sort((a,b) => b.score - a.score).slice(0, 3);
+    return scoredHospitals.sort((a,b) => (b.score ?? 0) - (a.score ?? 0)).slice(0, 3);
   }, [liveData, userLocation, mciState, isHospitalBlocked]); // Removed trafficMultiplier from dependency array
 
   const processedData = useMemo(() => {
