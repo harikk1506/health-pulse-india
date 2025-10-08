@@ -1,10 +1,10 @@
 import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-import type { Portal, LiveHospitalData, HistoricalStat } from '../../types';
-import { StrategicContext } from '../../App';
-import { useTranslations } from '../../hooks/useTranslations';
+import type { Portal, LiveHospitalData, HistoricalStat } from '../../../types';
+import { StrategicContext } from '../../../App';
+import { useTranslations } from '../../../hooks/useTranslations';
 import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
 import { IconType } from 'react-icons'; 
-import IndianLogo from '../../assets/logo.svg';
+import IndianLogo from '../../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
 // --- Type Definitions for Local Components (TS Fixes) ---
@@ -537,11 +537,12 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     }
 
     return (
-        <div className="flex flex-col h-screen font-sans overflow-hidden bg-slate-100">
+        // ADDED overflow-x-hidden to the main container to prevent the horizontal scrollbar at 100% zoom
+        <div className="flex flex-col h-screen font-sans overflow-hidden bg-slate-100 overflow-x-hidden">
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
-                {/* FIX: Removed extra padding/margin from main container to prevent 100% zoom scroll issue */}
+                {/* Removed extra padding/margin from main container to prevent 100% zoom scroll issue */}
                 <main className="flex-grow flex flex-col p-3 overflow-y-auto gap-3">
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
                     <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 border-t-4 border-slate-800 divide-x divide-slate-200'>
