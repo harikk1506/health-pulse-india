@@ -1,8 +1,11 @@
 import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
 // FIX: Import GlobalContextType for explicit typing of useContext
-import type { Portal, LiveHospitalData, HistoricalStat, GlobalContextType } from '../../../types'; 
-import { StrategicContext } from '../../../App';
-import { useTranslations } from '../../../hooks/useTranslations';
+// FIX: Corrected import depth from '../../../types' to '../../types'
+import type { Portal, LiveHospitalData, HistoricalStat, GlobalContextType } from '../../types'; 
+// FIX: Corrected import depth from '../../../App' to '../../App'
+import { StrategicContext } from '../../App';
+// FIX: Corrected import depth from '../../../hooks/useTranslations' to '../../hooks/useTranslations'
+import { useTranslations } from '../../hooks/useTranslations';
 import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
 import { IconType } from 'react-icons'; 
 import IndianLogo from '../../../assets/logo.svg';
