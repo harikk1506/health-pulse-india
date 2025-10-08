@@ -1,3 +1,5 @@
+// src/portals/strategic/StrategicPortal.tsx
+
 import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
 import type { Portal, LiveHospitalData, HistoricalStat } from '../../types';
 import { StrategicContext } from '../../App';
@@ -196,10 +198,16 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
     }
 
     let displayValue = title.includes('Avg. Wait Time') ? `${value}` : `${value}`;
+    
+    // START FIX: Only show FaInfoCircle when onClick is provided (for the critical hospitals modal)
+    const showInfoIcon = !!onClick; 
+    // END FIX
 
     return (
         <div onClick={onClick} className={`text-center group transition-all duration-300 relative px-2 ${onClick ? 'cursor-pointer' : ''}`}>
-            {onClick && <FaInfoCircle className="absolute top-0 right-1 text-gray-300 group-hover:text-blue-500 transition-colors" size={10} />}
+            {/* START FIX: Conditional rendering for the info icon */}
+            {showInfoIcon && <FaInfoCircle className="absolute top-0 right-1 text-gray-300 group-hover:text-blue-500 transition-colors" size={10} />}
+            {/* END FIX */}
             <p className="text-[11px] font-semibold text-gray-500 flex items-center justify-center gap-1 leading-tight h-6 truncate">
                 <Icon size={10} style={{ color }}/> <span>{title}</span>
             </p>
@@ -255,7 +263,7 @@ const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: G
                                 {portals.map(p => (
                                     <button
                                         key={p}
-                                        onClick={() => { setActivePortal(p); setDropdownOpen(false); }}
+                                        onClick={() => { setActivePortal(p); setDropdownPortal(false); }}
                                         className={`w-full text-left px-3 py-2 text-sm transition-colors ${activePortal === p ? 'bg-slate-800 text-white font-bold' : 'text-gray-700 hover:bg-gray-100'}`}
                                     >
                                         {t(`portal.${p.toLowerCase()}`)}
@@ -540,17 +548,19 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
-                {/* ADJUSTMENT: Using p-2.5 and gap-2 to achieve perfect fit and remove the scrollbar */}
-                <main className="flex-grow flex flex-col p-2.5 overflow-y-auto gap-2">
+                {/* START FIX: Reduced padding from p-2.5 to p-2 for main content area to solve scrollbar issue */}
+                <main className="flex-grow flex flex-col p-2 overflow-y-auto gap-2">
+                {/* END FIX */}
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
                     <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
-                        {/* NOTE: Removed border-t-4 border-slate-800 from this div to remove the extra black line */}
-                        <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={() => {}} />
+                        {/* START FIX: Removed onClick from all KPIs except 'Hospitals >85% BOR' to remove the info icon */}
+                        <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={undefined} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
-                        <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={() => {}} />
-                        <KpiMetric title="Avg. Length of Stay" value={nationalStats.avgALOS.toFixed(1)} unit=" days" color={COLORS.safeGreen} icon={FaProcedures} isAlert={nationalStats.avgALOS > 6} trend={nationalStats.trend_alos} onClick={() => {}} />
-                        <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" color={COLORS.staffFatigue} icon={FaUserMd} isAlert={nationalStats.avgStaffFatigue > 70} trend={nationalStats.trend_fatigue} onClick={() => {}}/>
-                        <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" color={COLORS.patientSatisfaction} icon={FaSmile} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={() => {}}/>
+                        <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={undefined} />
+                        <KpiMetric title="Avg. Length of Stay" value={nationalStats.avgALOS.toFixed(1)} unit=" days" color={COLORS.safeGreen} icon={FaProcedures} isAlert={nationalStats.avgALOS > 6} trend={nationalStats.trend_alos} onClick={undefined} />
+                        <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" color={COLORS.staffFatigue} icon={FaUserMd} isAlert={nationalStats.avgStaffFatigue > 70} trend={nationalStats.trend_fatigue} onClick={undefined}/>
+                        <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" color={COLORS.patientSatisfaction} icon={FaSmile} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={undefined}/>
+                        {/* END FIX */}
                     </div>
 
                     {/* CHART AND ALERT PANELS (2-column split layout from Screenshot 308) */}
