@@ -2,7 +2,7 @@ import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'r
 import type { Portal, LiveHospitalData, HistoricalStat } from '../../types'; // Removed unused MciState import
 import { StrategicContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
-// CLEANUP: Removed unused FaBiohazard import. Adjusted IconType import for TS compliance.
+// CLEANUP: Removed unused imports/type arguments from context destructuring for TS compliance
 import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
 import { IconType } from 'react-icons'; // TS Fix: Import IconType directly from react-icons/index
 import IndianLogo from '../../assets/logo.svg';
@@ -550,7 +550,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
                         <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={() => {}} />
                         <KpiMetric title="Avg. Length of Stay" value={nationalStats.avgALOS.toFixed(1)} unit=" days" color={COLORS.safeGreen} icon={FaProcedures} isAlert={nationalStats.avgALOS > 6} trend={nationalStats.trend_alos} onClick={() => {}} />
-                        <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" color={COLORS.staffFatigue} icon={FaUserMd} isAlert={nationalStats.avgFatigue > 70} trend={nationalStats.trend_fatigue} onClick={() => {}}/>
+                        {/* FIX: Corrected isAlert logic to use avgStaffFatigue, resolving TS2339 */}
+                        <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" color={COLORS.staffFatigue} icon={FaUserMd} isAlert={nationalStats.avgStaffFatigue > 70} trend={nationalStats.trend_fatigue} onClick={() => {}}/>
                         <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" color={COLORS.patientSatisfaction} icon={FaSmile} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={() => {}}/>
                     </div>
 
