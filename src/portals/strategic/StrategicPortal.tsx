@@ -1,9 +1,11 @@
 // src/portals/strategic/StrategicPortal.tsx
 
 import { useState, useMemo, useContext, useEffect, useRef } from 'react';
-import type { Portal } from '../../types';
+import type { Portal } from '../../types'; 
 import { StrategicContext } from '../../App';
 import { CSSTransition } from 'react-transition-group';
+// FIX: Import FaSpinner for the loading screen
+import { FaExclamationTriangle, FaClock, FaUserMd, FaSmile, FaCheckCircle, FaSpinner } from 'react-icons/fa'; 
 
 import { PortalHeader } from './components/PortalHeader';
 import { PortalFooter } from './components/PortalFooter';
@@ -102,8 +104,14 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
         return <LoginPage onLogin={() => setIsAuthenticated(true)} activePortal={activePortal} setActivePortal={setActivePortal} onGoToIntro={onGoToIntro} />;
     }
 
+    // FIX: Use the imported FaSpinner component for the loading screen to ensure it displays and allows app to proceed.
     if (!nationalStats) { 
-        return <div className="flex h-screen items-center justify-center bg-slate-100"><i className="fas fa-spinner fa-spin text-4xl text-slate-800"></i><p className='ml-3 text-lg'>Processing Strategic Data...</p></div>; 
+        return (
+            <div className="flex h-screen items-center justify-center bg-slate-100">
+                <FaSpinner className="animate-spin text-4xl text-slate-800" />
+                <p className='ml-3 text-lg'>Processing Strategic Data...</p>
+            </div>
+        );
     }
 
     return (
