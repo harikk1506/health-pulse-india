@@ -549,7 +549,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
                 {/* START FIX: Padding reduced from p-2 to p-1.5 for minimal spacing and to eliminate the scrollbar */}
-                <main className="flex-grow flex flex-col p-0.5 overflow-y-auto gap-2">
+                <main className="flex-grow flex flex-col p-0 overflow-y-auto gap-2">
                 {/* END FIX */}
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
                     <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
