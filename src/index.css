@@ -1,0 +1,84 @@
+/* src/index.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f1f5f9;
+  font-family: 'Inter', sans-serif;
+}
+
+/* NEW: Custom font for display text */
+.font-display {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* NEW: Indian Flag Tinge Background */
+.flag-background {
+  background: radial-gradient(circle at top, rgba(255, 159, 64, 0.3), transparent 60%),
+              radial-gradient(circle at bottom, rgba(19, 136, 8, 0.3), transparent 60%),
+              #f1f5f9;
+}
+
+/* NEW: Key Features Box Style */
+.key-features-box {
+    background-color: rgba(204, 251, 241, 0.7); /* bg-teal-50/70 */
+    border-left: 4px solid #0d9488; /* border-teal-600 */
+}
+
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* GPS Pulse Animation */
+@keyframes gps-pulse-animation {
+    0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(220, 38, 38, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+.gps-pulse { animation: gps-pulse-animation 1.5s infinite; border-radius: 50%; }
+
+/* Dropdown Animation */
+.dropdown-enter { opacity: 0; transform: scale(0.95) translateY(-10px); }
+.dropdown-enter-active { opacity: 1; transform: scale(1) translateY(0); transition: opacity 200ms, transform 200ms; }
+.dropdown-exit { opacity: 1; transform: scale(1) translateY(0); }
+.dropdown-exit-active { opacity: 0; transform: scale(0.95) translateY(-10px); transition: opacity 200ms, transform 200ms; }
+
+/* Control Centre Button Glow */
+@keyframes pulse-red-glow {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(239, 68, 68, 0.8); }
+  50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(239, 68, 68, 1); }
+}
+.control-centre-button { animation: pulse-red-glow 2s infinite; }
+
+/* Smart Suggestions Button Glow */
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 5px rgba(59, 130, 246, 0.7); }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(59, 130, 246, 0.9); }
+}
+.smart-suggestion-button { animation: pulse-glow 2s infinite; }
+
+/* Ambulance Transfer Animation */
+.moving-ambulance { animation: move-ambulance 30s linear infinite; }
+.moving-bar { animation: fill-up 30s linear infinite; }
+@keyframes move-ambulance { 0% { left: 0%; } 100% { left: calc(100% - 30px); } }
+@keyframes fill-up { 0% { transform: scaleX(0); transform-origin: left; } 100% { transform: scaleX(1); transform-origin: left; } }
+
+/* NEW: Accordion Animation */
+.accordion-enter { max-height: 0; opacity: 0; }
+.accordion-enter-active { max-height: 500px; opacity: 1; transition: max-height 300ms ease-in-out, opacity 300ms ease-in-out; }
+.accordion-exit { max-height: 500px; opacity: 1; }
+.accordion-exit-active { max-height: 0; opacity: 0; transition: max-height 300ms ease-in-out, opacity 300ms ease-in-out; }
+
+/* NEW: KPI Card Details Animation */
+.kpi-details-enter { max-height: 0; opacity: 0; transform: translateY(-10px); }
+.kpi-details-enter-active { max-height: 500px; opacity: 1; transform: translateY(0); transition: all 500ms ease-in-out; }
+.kpi-details-exit { max-height: 500px; opacity: 1; transform: translateY(0); }
+.kpi-details-exit-active { max-height: 0; opacity: 0; transform: translateY(-10px); transition: all 500ms ease-in-out; }
