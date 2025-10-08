@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useMemo, useRef, useContext, useCallback } from 'react';
 import type { LiveHospitalData, AuditLogEntry, HistoricalDataPoint, Portal, Metric, HistoricalPeriod, Hospital, OwnershipType } from '../../types';
 import { generateHospitalHistory } from '../../utils/helpers_strategic';
-import { FaBed, FaClinicMedical, FaSpinner, FaTimes, FaUserMd, FaSave, FaSignOutAlt, FaTachometerAlt, FaAmbulance, FaCheckCircle, FaExclamationTriangle, FaBuilding, FaFirstAid, FaHistory, FaFileMedicalAlt, FaChevronDown, FaLink, FaSmile, FaPhone, FaBars, FaHome, IconType } from 'react-icons/fa';
+// FIX: Import IconType from 'react-icons' to fix TS2459
+import { IconType } from 'react-icons';
+import { FaBed, FaClinicMedical, FaSpinner, FaTimes, FaUserMd, FaSave, FaSignOutAlt, FaTachometerAlt, FaAmbulance, FaCheckCircle, FaExclamationTriangle, FaBuilding, FaFirstAid, FaHistory, FaFileMedicalAlt, FaChevronDown, FaLink, FaSmile, FaPhone, FaBars, FaHome } from 'react-icons/fa';
 import { StrategicContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
 import { CSSTransition } from 'react-transition-group';
@@ -199,7 +201,7 @@ const KpiCard = ({ title, value, unit = '', icon: Icon, color, onClick, details,
                         {details.map(detail => (
                             <div key={detail.label}>
                                 <p className="text-xs text-gray-500">{detail.label}</p>
-                                <p className="text-2xl font-bold text-gray-800">{detail.value}%</p>
+                                <p className="2xl font-bold text-gray-800">{detail.value}%</p>
                             </div>
                         ))}
                     </div>
@@ -992,7 +994,7 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
 
             <div className="flex flex-grow overflow-hidden">
                 <HospitalSidebar setIsAuthenticated={handleLogout} activeMenu={activeMenu} setActiveMenu={setActiveMenu} isCollapsed={isSidebarCollapsed} syncStatus={syncStatus} />
-                <div className="flex-grow flex flex-col">
+                <div className="flex flex-grow flex-col">
                     <main className={`flex-grow p-3 bg-gray-200 ${activeMenu === 'Dashboard' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
                         {mciState.isActive && mciState.region === selectedHospital.region && (
                             <div className='bg-red-500 text-white font-bold text-center py-2 text-sm rounded-lg mb-4 animate-pulse flex items-center justify-center gap-2'>

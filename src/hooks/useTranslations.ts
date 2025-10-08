@@ -2,12 +2,14 @@
 import { useContext } from 'react';
 import { LanguageContext } from '../App';
 import { translations } from '../i18n/locales';
+import type { Language } from '../types'; // Import Language type
 
 export const useTranslations = () => {
   const { language } = useContext(LanguageContext);
 
   const t = (key: string, replacements?: { [key: string]: string | number }) => {
-    let translation = (translations[language] as { [key: string]: string })?.[key] || key;
+    // FIX: Explicitly cast translations to resolve TS7053
+    let translation = ((translations as Record<Language, Record<string, string>>)[language as Language])?.[key] || key;
     
     if (replacements) {
         Object.keys(replacements).forEach(placeholder => {

@@ -1,23 +1,23 @@
 // src/portals/strategic/StrategicPortal.tsx
 
-import React, { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-import type { MciState, Portal, LiveHospitalData } from '../../types';
+// FIX: Removed unused 'React' and 'LiveHospitalData' imports (TS6133, TS6196)
+import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
+import type { MciState, Portal } from '../../types';
 import { StrategicContext } from '../../App';
 import { CSSTransition } from 'react-transition-group';
 
 import { PortalHeader } from './components/PortalHeader';
 import { PortalFooter } from './components/PortalFooter';
 import { StrategicSidebar } from './components/StrategicSidebar';
-import { KpiMetric } from './components/KpiMetric';
+// FIX: Removed unused component imports (TS6133)
 import { LoginPage } from './components/LoginPage';
-import { LogoutScreen } from './components/LogoutScreen';
+import { LogoutScreen } from './components/LogoutScreen'; 
 import { CriticalHospitalsModal } from './components/CriticalHospitalsModal';
-import { RegionalHotspotsChart } from './components/RegionalHotspotsChart';
-import { SystemHealthPanel } from './components/SystemHealthPanel';
 import { Toast } from './components/Toast';
 
 const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePortal: Portal, setActivePortal: (p: Portal) => void, onGoToIntro: () => void }) => {
-    const { liveData, mciState, setMciState, nationalHistory } = useContext(StrategicContext);
+    // FIX: Removed unused imports from useContext destructuring
+    const { liveData, setMciState, nationalHistory } = useContext(StrategicContext);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -105,7 +105,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
             
              <CSSTransition nodeRef={modalRef} in={showCriticalModal} timeout={300} classNames="dropdown" unmountOnExit>
                  <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
-                    <CriticalHospitalsModal onClose={() => setShowCriticalModal(false)} criticalHospitals={liveData.filter(h => h.bedOccupancy > 85)} liveData={liveData} />
+                    {/* FIX: Removed extraneous liveData prop which was causing TS2322 */}
+                    <CriticalHospitalsModal onClose={() => setShowCriticalModal(false)} criticalHospitals={liveData.filter(h => h.bedOccupancy > 85)} />
                  </div>
             </CSSTransition>
             <Toast message={toast.message} type={toast.type} onClose={() => setToast({message: null, type: null})} />

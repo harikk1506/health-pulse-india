@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { FaChevronDown, FaHome, FaSpinner, FaUserShield, FaGlobeAsia } from 'react-icons/fa';
 import { useTranslations } from '../../../hooks/useTranslations';
 import type { Portal } from '../../../types';
-import { CSSTransition } from 'react-transition-group';
+// FIX: Removed unused CSSTransition import (TS6133)
+// import { CSSTransition } from 'react-transition-group';
 
 const PORTAL_TITLE = "RASHTRIYA NITI";
 const PORTAL_USER_ID = "MoHFW-Admin";

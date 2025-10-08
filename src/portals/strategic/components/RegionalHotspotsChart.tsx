@@ -1,5 +1,3 @@
-import React from 'react';
-
 const COLORS = {
     alertRed: '#e53e3e',
     warningOrange: '#dd6b20',

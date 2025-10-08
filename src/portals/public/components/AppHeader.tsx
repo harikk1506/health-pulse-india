@@ -6,7 +6,8 @@ import { LanguageContext } from '../../../App';
 import type { Portal } from '../../../types';
 import IndianLogo from '../../../assets/logo.svg';
 
-const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, callback: () => void) => {
+// FIX: Update type signature to allow null for useRef(null) initialization
+const useOutsideClick = (ref: React.RefObject<HTMLDivElement | null>, callback: () => void) => {
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (ref.current && !ref.current.contains(event.target as Node)) {

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const COLORS = {
     publicSector: '#06b6d4',
     privateSector: '#6366f1',

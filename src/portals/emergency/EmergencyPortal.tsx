@@ -1,6 +1,6 @@
 // src/portals/emergency/EmergencyPortal.tsx
 
-import React, { useState, useEffect, useMemo, useContext, useRef } from 'react';
+import { useState, useEffect, useMemo, useContext, useRef } from 'react';
 import type { LiveHospitalData, Portal } from '../../types';
 import { useGeolocation, getDistance, getMaxTransferDistance, getDynamicETA } from '../../utils/helpers_public';
 import { FaAmbulance, FaCheckCircle, FaSpinner, FaTimes, FaRoute, FaBell, FaPhone, FaSignOutAlt, FaChevronDown, FaExclamationTriangle, FaTimesCircle, FaMapMarkerAlt, FaHome } from 'react-icons/fa';
