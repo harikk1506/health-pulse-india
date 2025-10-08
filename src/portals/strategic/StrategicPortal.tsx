@@ -504,7 +504,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
         
         criticalHospitals.forEach(h => {
-            // FIX: Ensure safe indexing into criticalCounts (TS7053)
+            // TS7053 Fix: Safe indexing
             criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
         });
         
@@ -548,8 +548,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
-                {/* START FIX: Padding adjusted to p-2 for optimal fit */}
-                <main className="flex-grow flex flex-col p-2 overflow-y-auto gap-2">
+                {/* START FIX: Padding reduced from p-2 to p-1.5 for minimal spacing and to eliminate the scrollbar */}
+                <main className="flex-grow flex flex-col p-1.5 overflow-y-auto gap-2">
                 {/* END FIX */}
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
                     <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
