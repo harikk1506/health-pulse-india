@@ -1,5 +1,6 @@
 import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-import type { Portal, LiveHospitalData, HistoricalStat } from '../../../types';
+// FIX: Import GlobalContextType for explicit typing of useContext
+import type { Portal, LiveHospitalData, HistoricalStat, GlobalContextType } from '../../../types'; 
 import { StrategicContext } from '../../../App';
 import { useTranslations } from '../../../hooks/useTranslations';
 import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
@@ -216,7 +217,7 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
 const LogoutScreen = () => (
     <div className="fixed inset-0 bg-slate-800 bg-opacity-90 flex flex-col items-center justify-center z-[200]">
         <FaSpinner className="animate-spin text-white text-4xl" />
-        <p className="mt-4 text-white font-semibold">Logging out and clearing session...</p>
+        <p className="mt-4 text-white font-semibold">Logging out and clearing strategic session...</p>
     </div>
 );
 
@@ -296,7 +297,8 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onCl
     const regionalData = useMemo(() => {
         const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
         const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
-        criticalHospitals.forEach(h => {
+        // FIX: Explicitly type parameter 'h'
+        criticalHospitals.forEach((h: LiveHospitalData) => { 
             if (regions[h.region] !== undefined) {
                  // TS7053 Fix: Safe indexing
                 criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
@@ -389,8 +391,8 @@ const SystemHealthPanel = ({ stats }: { stats: NationalStatsType }) => {
 // --- MAIN STRATEGIC PORTAL COMPONENT ---
 
 const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: GenericProps) => {
-    // FIX: Removed unused imports/type arguments from context destructuring for TS compliance
-    const { liveData, mciState, setMciState, nationalHistory } = useContext(StrategicContext);
+    // FIX: Explicitly type the destructured values from useContext(StrategicContext)
+    const { liveData, mciState, setMciState, nationalHistory } = useContext(StrategicContext) as GlobalContextType; 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -438,11 +440,13 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             return 'stable';
         };
 
-        const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
+        // FIX: Explicitly type parameter 'h'
+        const criticalHospitals = liveData.filter((h: LiveHospitalData) => h.bedOccupancy > 85); 
         const criticalHospitalPercent = (criticalHospitals.length / liveData.length) * 100;
         const prevCriticalHospitalsCount = previous.criticalHospitals;
         
-        const resourceStrainedHospitals = liveData.filter(h => h.oxygen_supply_days < 10 || h.ppe_stock_level === 'Critical' || h.ppe_stock_level === 'Stockout');
+        // FIX: Explicitly type parameter 'h'
+        const resourceStrainedHospitals = liveData.filter((h: LiveHospitalData) => h.oxygen_supply_days < 10 || h.ppe_stock_level === 'Critical' || h.ppe_stock_level === 'Stockout');
         const adequateResourcePercent = (1 - (resourceStrainedHospitals.length / liveData.length)) * 100;
         const prevAdequateResourcePercent = (1 - (nationalHistory[nationalHistory.length - 2].criticalHospitals / liveData.length)) * 100;
 
@@ -458,8 +462,10 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             avgWaitTime: latest.avgWaitTime,
             trend_wait: getTrend(previous.avgWaitTime, latest.avgWaitTime), 
             
-            avgALOS: liveData.reduce((acc, h) => acc + h.ALOS_days, 0) / liveData.length,
-            trend_alos: getTrend(liveData.reduce((acc, h) => acc + h.ALOS_days, 0), liveData.reduce((acc, h) => acc + h.ALOS_days, 0)), 
+            // FIX: Explicitly type parameters 'acc' and 'h'
+            avgALOS: liveData.reduce((acc: number, h: LiveHospitalData) => acc + h.ALOS_days, 0) / liveData.length,
+            // FIX: Explicitly type parameters 'acc' and 'h'
+            trend_alos: getTrend(liveData.reduce((acc: number, h: LiveHospitalData) => acc + h.ALOS_days, 0), liveData.reduce((acc: number, h: LiveHospitalData) => acc + h.ALOS_days, 0)), 
             
             adequateResourcePercent: adequateResourcePercent,
             trend_resources: getTrend(adequateResourcePercent, prevAdequateResourcePercent), 
@@ -494,9 +500,12 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         if(!nationalStats) return [];
         const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
         const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
-        const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
         
-        criticalHospitals.forEach(h => {
+        // FIX: Explicitly type parameter 'h'
+        const criticalHospitals = liveData.filter((h: LiveHospitalData) => h.bedOccupancy > 85);
+        
+        // FIX: Explicitly type parameter 'h'
+        criticalHospitals.forEach((h: LiveHospitalData) => {
             // FIX: Ensure safe indexing into criticalCounts (TS7053)
             criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
         });
@@ -522,7 +531,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         }
     };
     
-    const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
+    // FIX: Explicitly type parameter 'h'
+    const criticalHospitals = liveData.filter((h: LiveHospitalData) => h.bedOccupancy > 85);
     const canDeclareMci = mciRegion !== 'None' && mciConfirmText === 'CONFIRM' && eligibleMciRegions.includes(mciRegion);
     
     if (isLoggingOut) return <LogoutScreen />;
