@@ -1,8 +1,10 @@
-import React, { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-import type { MciState, Portal, LiveHospitalData, HistoricalStat } from '../../types';
+import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
+import type { Portal, LiveHospitalData, HistoricalStat } from '../../types'; // Removed unused MciState import
 import { StrategicContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
-import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaBiohazard, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle, IconType } from 'react-icons/fa';
+// CLEANUP: Removed unused FaBiohazard import. Adjusted IconType import for TS compliance.
+import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
+import { IconType } from 'react-icons'; // TS Fix: Import IconType directly from react-icons/index
 import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
@@ -297,7 +299,7 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onCl
         const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
         criticalHospitals.forEach(h => {
             if (regions[h.region] !== undefined) {
-                 // TS7053 Fix: Safe indexing when region is defined
+                 // TS7053 Fix: Safe indexing
                 criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
             }
         });
@@ -548,8 +550,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
                         <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={() => {}} />
                         <KpiMetric title="Avg. Length of Stay" value={nationalStats.avgALOS.toFixed(1)} unit=" days" color={COLORS.safeGreen} icon={FaProcedures} isAlert={nationalStats.avgALOS > 6} trend={nationalStats.trend_alos} onClick={() => {}} />
-                        <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" icon={FaUserMd} color={COLORS.staffFatigue} isAlert={nationalStats.avgFatigue > 70} trend={nationalStats.trend_fatigue} onClick={() => {}}/>
-                        <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" icon={FaSmile} color={COLORS.patientSatisfaction} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={() => {}}/>
+                        <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" color={COLORS.staffFatigue} icon={FaUserMd} isAlert={nationalStats.avgFatigue > 70} trend={nationalStats.trend_fatigue} onClick={() => {}}/>
+                        <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" color={COLORS.patientSatisfaction} icon={FaSmile} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={() => {}}/>
                     </div>
 
                     {/* CHART AND ALERT PANELS (2-column split layout from Screenshot 308) */}
