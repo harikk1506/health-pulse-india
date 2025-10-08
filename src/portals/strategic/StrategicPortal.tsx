@@ -143,7 +143,8 @@ const PortalHeader = ({ activePortal, setActivePortal, onLogout, isSidebarCollap
 };
 
 const PortalFooter = ({ ping }: { ping: number }) => (
-    <footer className="bg-gray-800 text-gray-400 text-[9px] p-0.5 text-center flex-shrink-0 flex justify-between items-center px-4 z-20">
+    // FIX: Changed p-0.5 to py-0 px-4 to make the footer as small as possible vertically
+    <footer className="bg-gray-800 text-gray-400 text-[9px] py-0 text-center flex-shrink-0 flex justify-between items-center px-4 z-20">
         <span>© 2025 National Bed Occupancy Dashboard. V1.0.0 - {PORTAL_TITLE}</span>
         <div className="flex items-center gap-4">
             <span className={`${ping > 500 ? 'text-red-400 animate-pulse' : 'text-green-400'} font-semibold`}>Ping: {ping} ms</span>
@@ -372,7 +373,7 @@ const SystemHealthPanel = ({ stats }: { stats: NationalStatsType }) => {
         <div>
             <div className="flex justify-between items-baseline mb-0.5">
                 <span className="text-xs font-semibold" style={{ color: COLORS.textMedium }}>{label}</span>
-                <span className="text-sm font-bold" style={{color}}>{value.toFixed(1)}%</span>
+            <span className="text-sm font-bold" style={{color}}>{value.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-slate-200 rounded-full h-2">
                  <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${value}%`, backgroundColor: color }}></div>
@@ -546,9 +547,9 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
-                {/* FINAL FIX: px-2 for minimal side padding, py-0 to kill scrollbar, space-y-2 for internal gaps. */}
+                {/* FIX: py-0 to kill scrollbar, px-2 for side padding, space-y-2 for internal gaps. */}
                 <main className="flex-grow flex flex-col px-2 py-0 overflow-y-auto space-y-2">
-                    {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
+                    {/* KPI Row (Top) */}
                     {/* Added mt-2 margin to the top element for spacing below the header */}
                     <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200 mt-2'>
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={undefined} />
@@ -559,8 +560,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                         <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" color={COLORS.patientSatisfaction} icon={FaSmile} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={undefined}/>
                     </div>
 
-                    {/* CHART AND ALERT PANELS (2-column split layout from Screenshot 308) */}
-                    {/* Added mb-2 margin to the bottom element to create space above the footer */}
+                    {/* CHART AND ALERT PANELS (Bottom Content Row) */}
+                    {/* ADDED: mb-2 to push the bottom row away from the footer */}
                     <div className="flex-grow grid grid-cols-12 gap-2 mb-2">
                         {/* Left Column: Zonal Chart (col-span-7) */}
                         <div className="col-span-7 h-full">
