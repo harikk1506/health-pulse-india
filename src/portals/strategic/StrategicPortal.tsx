@@ -1,14 +1,14 @@
 import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-// FIX: Import GlobalContextType for explicit typing of useContext
-// FIX: Corrected import depth from '../../../types' to '../../types'
+// FIX: Corrected import path depth to '../../'
 import type { Portal, LiveHospitalData, HistoricalStat, GlobalContextType } from '../../types'; 
-// FIX: Corrected import depth from '../../../App' to '../../App'
+// FIX: Corrected import path depth to '../../'
 import { StrategicContext } from '../../App';
-// FIX: Corrected import depth from '../../../hooks/useTranslations' to '../../hooks/useTranslations'
+// FIX: Corrected import path depth to '../../'
 import { useTranslations } from '../../hooks/useTranslations';
 import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
 import { IconType } from 'react-icons'; 
-import IndianLogo from '../../../assets/logo.svg';
+// FIX: Corrected import path depth to '../../'
+import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
 // --- Type Definitions for Local Components (TS Fixes) ---
@@ -322,7 +322,8 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onCl
             </div>
             <div className='p-6 space-y-4'>
                 <div className="text-center">
-                    <p className='font-semibold text-gray-700'>Percentage of hospitals in each zone with bed occupancy over 85%.</p>
+                    <p className='font-semibold text-gray-700'>Percentage of hospitals in each zone with bed occupancy over 85%
+                    </p>
                 </div>
                 <div className="text-lg space-y-2">
                     {regionalData.map(({name, percentage}) => (
