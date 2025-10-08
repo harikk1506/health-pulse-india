@@ -1,10 +1,9 @@
 import { useState, useMemo, useContext, useEffect, useRef, useCallback } from 'react';
-import type { Portal, LiveHospitalData, HistoricalStat } from '../../types'; // Removed unused MciState import
+import type { Portal, LiveHospitalData, HistoricalStat } from '../../types';
 import { StrategicContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
-// CLEANUP: Removed unused imports/type arguments from context destructuring for TS compliance
 import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
-import { IconType } from 'react-icons'; // TS Fix: Import IconType directly from react-icons/index
+import { IconType } from 'react-icons'; 
 import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
@@ -39,7 +38,7 @@ interface NationalStatsType {
     trend_alos: TrendType;
     adequateResourcePercent: number;
     trend_resources: TrendType;
-    avgStaffFatigue: number; // Corrected property name for clarity
+    avgStaffFatigue: number; 
     trend_fatigue: TrendType;
     avgSatisfaction: number;
     trend_satisfaction: TrendType;
@@ -59,8 +58,8 @@ const COLORS = {
     warningOrange: '#dd6b20',
     safeGreen: '#38a169',
     primaryBlue: '#3182ce',
-    staffFatigue: '#d69e2e', // Gold/Amber for Staff
-    patientSatisfaction: '#805ad5', // Purple for Satisfaction
+    staffFatigue: '#d69e2e', 
+    patientSatisfaction: '#805ad5', 
     publicSector: '#06b6d4',
     privateSector: '#6366f1',
     textDark: '#2d3748',
@@ -465,7 +464,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             adequateResourcePercent: adequateResourcePercent,
             trend_resources: getTrend(adequateResourcePercent, prevAdequateResourcePercent), 
             
-            avgStaffFatigue: latest.avgStaffFatigue, // Ensure this property name is correct
+            avgStaffFatigue: latest.avgStaffFatigue, 
             trend_fatigue: getTrend(latest.avgStaffFatigue, previous.avgStaffFatigue),
 
             avgSatisfaction: latest.avgSatisfaction,
@@ -542,6 +541,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
+                {/* FIX: Removed extra padding/margin from main container to prevent 100% zoom scroll issue */}
                 <main className="flex-grow flex flex-col p-3 overflow-y-auto gap-3">
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
                     <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 border-t-4 border-slate-800 divide-x divide-slate-200'>
