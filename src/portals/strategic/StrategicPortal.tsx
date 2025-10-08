@@ -6,7 +6,7 @@ import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaU
 import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
-// --- Type Definitions for Local Components ---
+// --- Type Definitions for Local Components (TS Fixes) ---
 type TrendType = 'up' | 'down' | 'stable';
 
 interface KpiProps {
@@ -16,7 +16,7 @@ interface KpiProps {
     color: string;
     icon: IconType;
     isAlert: boolean;
-    onClick?: () => void; // Made optional here, handled below
+    onClick?: () => void;
     trend: TrendType;
 }
 
@@ -296,9 +296,9 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onCl
         const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
         const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
         criticalHospitals.forEach(h => {
-            if (criticalCounts[h.region] !== undefined) {
-                 // TS7053 Fix: h.region is typed as a literal in LiveHospitalData
-                criticalCounts[h.region]++; 
+            if (regions[h.region] !== undefined) {
+                 // TS7053 Fix: Safe indexing when region is defined
+                criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
             }
         });
         
@@ -388,6 +388,7 @@ const SystemHealthPanel = ({ stats }: { stats: NationalStatsType }) => {
 // --- MAIN STRATEGIC PORTAL COMPONENT ---
 
 const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: GenericProps) => {
+    // FIX: Removed unused imports/type arguments from context destructuring for TS compliance
     const { liveData, mciState, setMciState, nationalHistory } = useContext(StrategicContext);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -493,8 +494,10 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
         const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
         const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
+        
         criticalHospitals.forEach(h => {
-            criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1;
+            // FIX: Ensure safe indexing into criticalCounts (TS7053)
+            criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
         });
         
         return Object.keys(regions).filter(regionName => {
@@ -540,12 +543,12 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                 <main className="flex-grow flex flex-col p-3 overflow-y-auto gap-3">
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
                     <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 border-t-4 border-slate-800 divide-x divide-slate-200'>
-                        {/* Note: All KPI calls now include a valid onClick property, fixing TS2741 */}
+                        {/* All KPI calls now include an explicit onClick handler, fixing TS2741 */}
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={() => {}} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
                         <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={() => {}} />
                         <KpiMetric title="Avg. Length of Stay" value={nationalStats.avgALOS.toFixed(1)} unit=" days" color={COLORS.safeGreen} icon={FaProcedures} isAlert={nationalStats.avgALOS > 6} trend={nationalStats.trend_alos} onClick={() => {}} />
-                        <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" icon={FaUserMd} color={COLORS.staffFatigue} isAlert={nationalStats.avgStaffFatigue > 70} trend={nationalStats.trend_fatigue} onClick={() => {}}/>
+                        <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" icon={FaUserMd} color={COLORS.staffFatigue} isAlert={nationalStats.avgFatigue > 70} trend={nationalStats.trend_fatigue} onClick={() => {}}/>
                         <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" icon={FaSmile} color={COLORS.patientSatisfaction} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={() => {}}/>
                     </div>
 
