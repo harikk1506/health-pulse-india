@@ -1,19 +1,16 @@
-// src/portals/public/PublicPortal.tsx
-
-import React, { useState, useEffect, useMemo, useContext, useRef } from 'react';
+import { useState, useEffect, useMemo, useContext, useRef } from 'react';
 import type { LiveHospitalData, Filters, SortKey, Portal } from '../../types';
 import { useGeolocation, getDistance, useDebounce, calculateTheniETA } from '../../utils/helpers_public';
 import { FaExclamationTriangle } from 'react-icons/fa';
 import { GlobalContext } from '../../App';
 import { CSSTransition } from 'react-transition-group';
-
-import { HospitalListItem } from './components/HospitalListItem';
-import { HospitalDetailView } from './components/HospitalDetailView';
-import { LoadingScreen } from './components/LoadingScreen';
-import { RecommendationModal } from './components/RecommendationModal';
-import { PortalFooterPublic } from './components/PortalFooterPublic';
 import { AppHeader } from './components/AppHeader';
 import { FilterBar } from './components/FilterBar';
+import { HospitalDetailView } from './components/HospitalDetailView';
+import { HospitalListItem } from './components/HospitalListItem';
+import { LoadingScreen } from './components/LoadingScreen';
+import { PortalFooterPublic } from './components/PortalFooterPublic';
+import { RecommendationModal } from './components/RecommendationModal';
 
 const PublicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePortal: Portal, setActivePortal: (p: Portal) => void, onGoToIntro: () => void }) => {
   const { location: userLocation } = useGeolocation('public');
@@ -135,16 +132,3 @@ const PublicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePo
             <div className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl overflow-hidden">
                 {selectedHospital && <HospitalDetailView hospital={selectedHospital} onBack={() => setSelectedHospital(null)} />}
             </div>
-         </div>
-      </CSSTransition>
-
-       <CSSTransition nodeRef={modalRef} in={showRecommendations} timeout={300} classNames="dropdown" unmountOnExit>
-         <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
-            <RecommendationModal recommendations={recommendations} onClose={() => setShowRecommendations(false)} onSelectHospital={handleSelectFromRecommendation} />
-         </div>
-      </CSSTransition>
-    </div>
-  );
-}
-
-export default PublicPortal;

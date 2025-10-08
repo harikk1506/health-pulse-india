@@ -1,4 +1,4 @@
-import { useState, useRef, useContext } from 'react';
+import { useState, useRef, useContext, useEffect } from 'react';
 import { FaChevronDown, FaHome, FaRoute } from 'react-icons/fa';
 import { CSSTransition } from 'react-transition-group';
 import { useTranslations } from '../../../hooks/useTranslations';
@@ -55,7 +55,7 @@ export const AppHeader = ({ activePortal, setActivePortal, onRecommendClick, onG
                             <FaChevronDown size={12} />
                         </button>
                         <CSSTransition nodeRef={innerRef} in={isDropdownOpen} timeout={200} classNames="dropdown" unmountOnExit>
-                            <div ref={innerRef} className="absolute right-0 top-12 bg-white p-4 rounded-lg shadow-xl border z-50 w-48 py-1">
+                            <div ref={innerRef} className="absolute right-0 top-12 bg-white rounded-lg shadow-xl border z-50 w-48 py-1">
                                 <p className='text-xs font-semibold text-gray-500 px-3 py-1 border-b'>{t('switch.portal')}</p>
                                 {portals.map(p => (
                                     <button key={p} onClick={() => { setActivePortal(p); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 text-sm transition-colors ${activePortal === p ? 'bg-blue-500 text-white font-bold' : 'text-gray-700 hover:bg-gray-100'}`}>

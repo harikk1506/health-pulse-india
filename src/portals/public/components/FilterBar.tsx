@@ -1,11 +1,21 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FaFilter, FaRedo, FaSort, FaChevronUp, FaChevronDown, FaSearch, FaTimes } from 'react-icons/fa';
 import { CSSTransition } from 'react-transition-group';
 import { useTranslations } from '../../../hooks/useTranslations';
 import type { Filters, SortKey } from '../../../types';
 
 const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, callback: () => void) => {
-    // Implementation from previous steps
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (ref.current && !ref.current.contains(event.target as Node)) {
+                callback();
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [ref, callback]);
 };
 
 export const FilterBar = ({ filters, setFilters, sortKey, setSortKey, sortDirection, setSortDirection }:
@@ -16,7 +26,8 @@ export const FilterBar = ({ filters, setFilters, sortKey, setSortKey, sortDirect
     const filterContainerRef = useRef<HTMLDivElement>(null);
     const sortContainerRef = useRef<HTMLDivElement>(null);
 
-    // useOutsideClick implementation...
+    useOutsideClick(filterContainerRef, () => setFilterOpen(false));
+    useOutsideClick(sortContainerRef, () => setSortOpen(false));
 
     const handleClear = () => { setFilters({ searchTerm: '', types: [], hasICU: false, isOpen247: false, goodPPE: false }); setSortKey('distance'); setSortDirection('asc'); };
     const toggleType = (type: string) => setFilters(p => ({ ...p, types: p.types.includes(type) ? p.types.filter(t => t !== type) : [...p.types, type] }));
