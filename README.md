@@ -1,8 +1,6 @@
 # India's Health Pulse: A National Hospital Infrastructure Digital Twin
 
-**Live Demo:** [https://india-health-pulse.vercel.app/](https://india-health-pulse.vercel.app/)
-
----
+Live Demo: [https://india-health-pulse.vercel.app/](https://india-health-pulse.vercel.app/) 
 
 ### 1. Core Vision & Problem Statement 🩺
 
