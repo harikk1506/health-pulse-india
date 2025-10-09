@@ -14,7 +14,7 @@ export const HospitalDetailView = ({ hospital, onBack }: { hospital: LiveHospita
     const isThisHospitalBlocked = hospital.id === 1 && isHospitalBlocked;
 
     const [lat, lng] = hospital.coords;
-    const mapQuery = `${hospital.name}, ${hospital.address}`;
+    // const mapQuery = `${hospital.name}, ${hospital.address}`; <-- REMOVED to fix TS6133
     
     // FIX 1: Correct URL structure for the embedded map (using lat/lng and API key for a standard embed)
     const mapSrc = `https://maps.google.com/maps?q=${lat},${lng}&hl=en&z=15&output=embed&key=${API_KEY}`; 
