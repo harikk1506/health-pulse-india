@@ -73,7 +73,9 @@ const updateLiveMetrics = (hospital: LiveHospitalData): LiveHospitalData => {
     const dynamicALOS = hospital.ALOS_days + (Math.random() - 0.5) * 0.2;
     const baseDischargeRate = (hospital.occupiedBeds / dynamicALOS) / 24;
     const baseAdmissionRate = (hospital.EDThroughput_perDay / 24) * 0.24;
-    const randomShock = dynamicHighStrainIds.includes(hospital.id) ? 8.0 : 9.0;
+    
+    // FIX (VOLATILITY): Increased base shock from 9.0 to 10.0
+    const randomShock = dynamicHighStrainIds.includes(hospital.id) ? 9.0 : 10.0; 
     let netBedChangeRaw = baseDischargeRate - baseAdmissionRate + ((Math.random() - 0.5) * randomShock);
 
     const isInMciRegion = mciState.isActive && mciState.region === hospital.region;
@@ -102,7 +104,8 @@ const updateLiveMetrics = (hospital: LiveHospitalData): LiveHospitalData => {
 
     if (hospital.id === 150) {
         const FATIGUE_TARGET = 70.0, SATISFACTION_TARGET = 68.0, WAIT_TIME_TARGET = 120.0;
-        let fatigueChange = ((occupancyStrain - 0.8) * 1.5) + ((FATIGUE_TARGET - hospital.staffFatigue_score) * 0.1) + (Math.random() - 0.5) * 0.5;
+        // FIX (VOLATILITY): Increased volatility factor for noticeable swing
+        let fatigueChange = ((occupancyStrain - 0.8) * 1.8) + ((FATIGUE_TARGET - hospital.staffFatigue_score) * 0.1) + (Math.random() - 0.5) * 1.0; 
         staffFatigue_score = hospital.staffFatigue_score + Math.max(-MAX_FATIGUE_CHANGE, Math.min(MAX_FATIGUE_CHANGE, fatigueChange));
         
         let baseWaitTime = hospital.avgWaitTime_mins * (1 + (staffFatigue_score / 100) * 0.15) * (occupancyStrain > 0.8 ? 1 + (occupancyStrain - 0.8) * 2 : 1);
@@ -112,15 +115,16 @@ const updateLiveMetrics = (hospital: LiveHospitalData): LiveHospitalData => {
         patientSatisfaction_pct = hospital.patientSatisfaction_pct + Math.max(-MAX_SATISFACTION_CHANGE, Math.min(MAX_SATISFACTION_CHANGE, satisfactionChange));
     } else {
         const FATIGUE_RECOVERY_TARGET = 61;
-        // AMPLIFIED: Make the fatigue change much more significant
-        let fatigueChange = ((occupancyStrain - 0.78) * 5.0) + ((FATIGUE_RECOVERY_TARGET - hospital.staffFatigue_score) * 0.25) + (Math.random() - 0.5) * 1.5;
+        // FIX (VOLATILITY): Increased fatigue change factor significantly
+        let fatigueChange = ((occupancyStrain - 0.78) * 6.0) + ((FATIGUE_RECOVERY_TARGET - hospital.staffFatigue_score) * 0.25) + (Math.random() - 0.5) * 2.0; 
         staffFatigue_score = hospital.staffFatigue_score + Math.max(-MAX_FATIGUE_CHANGE, Math.min(MAX_FATIGUE_CHANGE, fatigueChange));
 
-        currentWaitTime = hospital.avgWaitTime_mins * (1 + (staffFatigue_score / 100) * 0.2) * (occupancyStrain > 0.8 ? 1 + (occupancyStrain - 0.8) * 10 : 1);
+        // FIX (VOLATILITY): Wait time calculation amplified
+        currentWaitTime = hospital.avgWaitTime_mins * (1 + (staffFatigue_score / 100) * 0.3) * (occupancyStrain > 0.8 ? 1 + (occupancyStrain - 0.8) * 12 : 1); 
 
         const SATISFACTION_RECOVERY_TARGET = 71;
-        // AMPLIFIED: Make the satisfaction change much more significant
-        let satisfactionChange = ((SATISFACTION_RECOVERY_TARGET - hospital.patientSatisfaction_pct) * 0.15) - ((staffFatigue_score - 61) * 0.8) - ((currentWaitTime / hospital.avgWaitTime_mins - 1) * 10) + (Math.random() - 0.5) * 2.0;
+        // FIX (VOLATILITY): Satisfaction change amplified
+        let satisfactionChange = ((SATISFACTION_RECOVERY_TARGET - hospital.patientSatisfaction_pct) * 0.15) - ((staffFatigue_score - 61) * 1.0) - ((currentWaitTime / hospital.avgWaitTime_mins - 1) * 12) + (Math.random() - 0.5) * 2.5; 
         patientSatisfaction_pct = hospital.patientSatisfaction_pct + Math.max(-MAX_SATISFACTION_CHANGE, Math.min(MAX_SATISFACTION_CHANGE, satisfactionChange));
     }
 

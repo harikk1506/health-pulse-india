@@ -1,3 +1,4 @@
+// src/portals/public/PublicPortal.tsx
 import { useState, useEffect, useMemo, useContext, useRef } from 'react';
 import type { LiveHospitalData, Filters, SortKey, Portal } from '../../types';
 import { useGeolocation, getDistance, useDebounce, calculateTheniETA } from '../../utils/helpers_public';
@@ -23,7 +24,8 @@ const PublicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePo
   const [visibleCount, setVisibleCount] = useState(8);
   const [isLoading, setIsLoading] = useState(true);
   const [showRecommendations, setShowRecommendations] = useState(false);
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalDetailRef = useRef<HTMLDivElement>(null);
+  const modalRecRef = useRef<HTMLDivElement>(null); // New ref for Recommendation Modal
 
   useEffect(() => {
       if (liveData.length > 0) {
@@ -127,14 +129,21 @@ const PublicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePo
         <PortalFooterPublic />
       </div>
       
-      <CSSTransition nodeRef={modalRef} in={!!selectedHospital} timeout={300} classNames="dropdown" unmountOnExit>
-         <div ref={modalRef} className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 p-4">
+      {/* Hospital Detail View Modal (Existing Logic) */}
+      <CSSTransition nodeRef={modalDetailRef} in={!!selectedHospital} timeout={300} classNames="dropdown" unmountOnExit>
+         <div ref={modalDetailRef} className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 p-4">
             <div className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl overflow-hidden">
                 {selectedHospital && <HospitalDetailView hospital={selectedHospital} onBack={() => setSelectedHospital(null)} />}
             </div>
          </div>
       </CSSTransition>
-      {showRecommendations && <RecommendationModal recommendations={recommendations} onClose={() => setShowRecommendations(false)} onSelectHospital={handleSelectFromRecommendation} />}
+      
+      {/* AI Recommendation Modal (FIXED to open in center) */}
+      <CSSTransition nodeRef={modalRecRef} in={showRecommendations} timeout={300} classNames="dropdown" unmountOnExit>
+          <div ref={modalRecRef} className="fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-70 p-4">
+             {showRecommendations && <RecommendationModal recommendations={recommendations} onClose={() => setShowRecommendations(false)} onSelectHospital={handleSelectFromRecommendation} />}
+          </div>
+      </CSSTransition>
     </div>
   );
 };

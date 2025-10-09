@@ -161,29 +161,29 @@ const StrategicSidebar = ({ isCollapsed, lastUpdated, isFeedActive }: { isCollap
         <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-slate-900 text-white flex flex-col shadow-2xl flex-shrink-0 h-full transition-all duration-300 z-10`}>
             <div className={`p-4 bg-slate-800 flex items-center border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
                 <div className="w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0">SC</div>
-                {!isCollapsed && (
-                    <div className="ml-3">
-                        <p className="text-sm font-semibold text-white">Strategic Command</p>
+                {!isCollapsed && ( 
+                    <div className="ml-3"> 
+                        <p className="text-sm font-semibold text-white">Strategic Command</p> 
                         <p className="text-xs text-gray-300">MoHFW</p>
                         <div className="mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-green-600 inline-block">Active Session</div>
-                    </div>
+                    </div> 
                 )}
             </div>
             <nav className="flex-grow p-4 space-y-1">
-                <button
-                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`}
+                <button 
+                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`} 
                     title="National Overview"
                 >
-                    <FaSitemap size={20} />
-                    {!isCollapsed && <span className="truncate">National Overview</span>}
-                </button>
+                    <FaSitemap size={20} /> 
+                    {!isCollapsed && <span className="truncate">National Overview</span>} 
+                </button> 
             </nav>
             {!isCollapsed && (
                 <div className="p-4 mt-auto border-t border-gray-700">
                     <div className='bg-gray-800 rounded-lg p-3 text-center'>
                          {/* R-STRATEGIC-2: Time Synchronization Visual */}
                         <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'>
-                            <FaClock/> Live Data Feed
+                            <FaClock/> Live Data Feed 
                             <span className={`w-2 h-2 rounded-full ml-1 ${isFeedActive ? 'bg-green-500 gps-pulse-small' : 'bg-red-500'}`}></span>
                         </p>
                         <p className={`text-sm font-semibold ${isFeedActive ? 'text-green-400' : 'text-red-400'}`}>Last Updated: {lastUpdated}</p>
@@ -197,7 +197,7 @@ const StrategicSidebar = ({ isCollapsed, lastUpdated, isFeedActive }: { isCollap
 const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClick, trend }: KpiProps) => {
     const TrendIcon = trend === 'up' ? FaArrowUp : FaArrowDown;
     let trendColor: string = '';
-
+    
     // Note: This logic for trend color is retained from your provided code
     if (trend === 'up') {
         trendColor = ['Adequate Resources', 'Patient Experience'].includes(title) ? COLORS.safeGreen : COLORS.alertRed;
@@ -206,7 +206,7 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
     }
 
     let displayValue = title.includes('Avg. Wait Time') ? `${value}` : `${value}`;
-
+    
     // R-STRATEGIC-1: Determine background tint for KPI card
     let cardBgStyle: { backgroundColor: string; borderColor: string } = { backgroundColor: COLORS.bgWhite, borderColor: COLORS.textLight };
     if (title === "National BOR") {
@@ -217,8 +217,8 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
     } else if (title === "Avg. Wait Time" && parseFloat(value) > 120) {
         cardBgStyle = { backgroundColor: COLORS.bgAlert, borderColor: COLORS.alertRed };
     }
-
-    const showInfoIcon = !!onClick;
+    
+    const showInfoIcon = !!onClick; 
 
     return (
         <div onClick={onClick} className={`text-center group transition-all duration-300 relative px-2 py-2 border-l border-r border-transparent ${onClick ? 'cursor-pointer hover:shadow-lg' : ''}`} style={cardBgStyle}>
@@ -270,7 +270,7 @@ const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: G
                             onClick={() => setDropdownOpen(p => !p)}
                             className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors"
                         >
-                            {t(`portal.${activePortal.toLowerCase()}`)} <FaChevronDown size={12} />
+                            {t(`portal.${activePortal.toLowerCase()}`)} <FaChevronDown size={12}/>
                         </button>
                         {isDropdownOpen && (
                             <div className="absolute right-0 top-12 bg-white rounded-lg shadow-xl border z-50 w-48 py-1">
@@ -487,7 +487,9 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         };
         
         // --- TRUE AVERAGE BOR CALCULATION FIX ---
-        const publicHospitals = liveData.filter(h => h.type.toLowerCase().includes('government') || h.type.toLowerCase().includes('ut'));
+        const publicHospitals = liveData.filter(h => 
+            h.type.toLowerCase().includes('government') || h.type.toLowerCase().includes('ut')
+        );
         const totalPublicBeds = publicHospitals.reduce((acc, h) => acc + h.totalBeds, 0);
         const occupiedPublicBeds = publicHospitals.reduce((acc, h) => acc + h.occupiedBeds, 0);
         const publicSectorOccupancy = totalPublicBeds > 0 ? (occupiedPublicBeds / totalPublicBeds) * 100 : 0;
@@ -498,6 +500,16 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         const occupiedPrivateBeds = privateHospitals.reduce((acc, h) => acc + h.occupiedBeds, 0);
         const privateSectorOccupancy = totalPrivateBeds > 0 ? (occupiedPrivateBeds / totalPrivateBeds) * 100 : 0;
         // --- END TRUE AVERAGE BOR CALCULATION FIX ---
+
+        // --- WAIT TIME KPI FIX (Public/Strained only) ---
+        const publicHospitalsForWaitTime = liveData.filter(h => 
+            h.type.toLowerCase().includes('government') || h.type.toLowerCase().includes('ut')
+        );
+        const totalPublicWaitTimes = publicHospitalsForWaitTime.reduce((sum, h) => sum + h.currentWaitTime, 0);
+        const avgWaitTimeFiltered = publicHospitalsForWaitTime.length > 0 
+            ? (totalPublicWaitTimes / publicHospitalsForWaitTime.length) 
+            : 0;
+        // --- END WAIT TIME KPI FIX ---
 
 
         const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
@@ -517,8 +529,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             criticalHospitalPercent: criticalHospitalPercent,
             trend_critical: getTrend(criticalHospitals.length, prevCriticalHospitalsCount),
 
-            avgWaitTime: latest.avgWaitTime,
-            trend_wait: getTrend(previous.avgWaitTime, latest.avgWaitTime),
+            avgWaitTime: avgWaitTimeFiltered, // <-- NOW USES THE PUBLIC-ONLY AVERAGE
+            trend_wait: getTrend(previous.avgWaitTime, avgWaitTimeFiltered),
 
             avgALOS: liveData.reduce((acc, h) => acc + h.ALOS_days, 0) / liveData.length,
             trend_alos: getTrend(liveData.reduce((acc, h) => acc + h.ALOS_days, 0), liveData.reduce((acc, h) => acc + h.ALOS_days, 0)),
@@ -670,7 +682,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalFooter ping={Math.round(ping)} />
 
              <CSSTransition nodeRef={modalRef} in={showCriticalModal} timeout={300} classNames="dropdown" unmountOnExit>
-                 <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
+                 <div ref={modalRecRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
                     <CriticalHospitalsModal onClose={() => setShowCriticalModal(false)} criticalHospitals={criticalHospitals} liveData={liveData} />
                  </div>
             </CSSTransition>
