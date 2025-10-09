@@ -1,6 +1,6 @@
 import { FaClock, FaSitemap } from 'react-icons/fa';
 
-export const StrategicSidebar = ({ isCollapsed, lastUpdated }: { isCollapsed: boolean, lastUpdated: string }) => {
+export const StrategicSidebar = ({ isCollapsed, lastUpdated, isFeedActive }: { isCollapsed: boolean, lastUpdated: string, isFeedActive: boolean }) => {
     return (
         <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-slate-900 text-white flex flex-col shadow-2xl flex-shrink-0 h-full transition-all duration-300 z-10`}>
             <div className={`p-4 bg-slate-800 flex items-center border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
@@ -25,8 +25,13 @@ export const StrategicSidebar = ({ isCollapsed, lastUpdated }: { isCollapsed: bo
             {!isCollapsed && (
                 <div className="p-4 mt-auto border-t border-gray-700">
                     <div className='bg-gray-800 rounded-lg p-3 text-center'>
-                        <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'><FaClock/> Live Data Feed</p>
-                        <p className={`text-sm font-semibold text-green-400`}>Last Updated: {lastUpdated}</p>
+                         {/* R-STRATEGIC-2: Time Synchronization Visual */}
+                        <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'>
+                            <FaClock/> Live Data Feed 
+                            {/* Uses the `isFeedActive` prop to determine pulse/color */}
+                            <span className={`w-2 h-2 rounded-full ml-1 ${isFeedActive ? 'bg-green-500 gps-pulse-small' : 'bg-red-500'}`}></span>
+                        </p>
+                        <p className={`text-sm font-semibold ${isFeedActive ? 'text-green-400' : 'text-red-400'}`}>Last Updated: {lastUpdated}</p>
                     </div>
                 </div>
             )}

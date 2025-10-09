@@ -1,3 +1,4 @@
+// src/portals/public/components/HospitalListItem.tsx
 import { FaHeartbeat, FaStar } from 'react-icons/fa';
 import { BiPlusMedical } from 'react-icons/bi';
 import type { LiveHospitalData } from '../../../types';
@@ -12,6 +13,18 @@ export const HospitalListItem = ({ hospital, onSelect }: { hospital: LiveHospita
     else if (typeText.toLowerCase().includes('private')) { typeColor = 'bg-green-100 text-green-800'; } 
     else if (typeText.toLowerCase().includes('trust')) { typeColor = 'bg-purple-100 text-purple-800'; } 
     
+    // R-PUBLIC-1-REVISED: Triage Badge Logic
+    const triageBadges = [];
+    if (hospital.availableICUBeds <= 0) {
+        triageBadges.push(<span key="icu" className="text-xs font-bold text-white bg-red-600 px-2 py-0.5 rounded-full">ICU FULL</span>);
+    }
+    if (hospital.availableBeds < 10) {
+        triageBadges.push(<span key="beds" className="text-xs font-bold text-white bg-amber-600 px-2 py-0.5 rounded-full">LOW BEDS</span>);
+    }
+    if (hospital.currentWaitTime > 120) { // Benchmark is 120 minutes (as confirmed)
+        triageBadges.push(<span key="wait" className="text-xs font-bold text-white bg-rose-600 px-2 py-0.5 rounded-full">&gt;120m WAIT</span>);
+    }
+
     return (
         <div onClick={onSelect} className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 ${occupancyColor} overflow-hidden flex flex-col relative`}>
             <div className="p-4"> 
@@ -32,6 +45,10 @@ export const HospitalListItem = ({ hospital, onSelect }: { hospital: LiveHospita
                 <div className="flex justify-between items-center mt-1">
                     <p className="text-xs text-gray-500 flex items-center gap-1"><FaStar className='text-yellow-500'/> {hospital.googleRating.toFixed(1)}</p>
                     <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${typeColor}`}>{typeText}</span>
+                </div>
+                {/* R-PUBLIC-1-REVISED: Render the badges */}
+                <div className='flex flex-wrap gap-1 mt-2'>
+                    {triageBadges}
                 </div>
             </div>
             <div className="p-3 border-t bg-slate-50 flex justify-around text-xs font-semibold">

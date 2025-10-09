@@ -69,6 +69,9 @@ const COLORS = {
     textLight: '#718096',
     bgLight: '#f7fafc',
     bgWhite: '#ffffff',
+    // R-STRATEGIC-1: Background Tints for KPI Visual Triage
+    bgAlert: 'rgba(239, 68, 68, 0.1)',   // light red
+    bgWarning: 'rgba(245, 158, 11, 0.1)', // light orange
 };
 
 
@@ -152,33 +155,38 @@ const PortalFooter = ({ ping }: { ping: number }) => (
     </footer>
 );
 
-const StrategicSidebar = ({ isCollapsed, lastUpdated }: { isCollapsed: boolean, lastUpdated: string }) => {
+// R-STRATEGIC-2: Updated Sidebar component definition
+const StrategicSidebar = ({ isCollapsed, lastUpdated, isFeedActive }: { isCollapsed: boolean, lastUpdated: string, isFeedActive: boolean }) => {
     return (
         <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-slate-900 text-white flex flex-col shadow-2xl flex-shrink-0 h-full transition-all duration-300 z-10`}>
             <div className={`p-4 bg-slate-800 flex items-center border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
                 <div className="w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0">SC</div>
-                {!isCollapsed && (
-                    <div className="ml-3">
-                        <p className="text-sm font-semibold text-white">Strategic Command</p>
+                {!isCollapsed && ( 
+                    <div className="ml-3"> 
+                        <p className="text-sm font-semibold text-white">Strategic Command</p> 
                         <p className="text-xs text-gray-300">MoHFW</p>
                         <div className="mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-green-600 inline-block">Active Session</div>
-                    </div>
+                    </div> 
                 )}
             </div>
             <nav className="flex-grow p-4 space-y-1">
-                <button
-                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`}
+                <button 
+                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`} 
                     title="National Overview"
                 >
-                    <FaSitemap size={20} />
-                    {!isCollapsed && <span className="truncate">National Overview</span>}
-                </button>
+                    <FaSitemap size={20} /> 
+                    {!isCollapsed && <span className="truncate">National Overview</span>} 
+                </button> 
             </nav>
             {!isCollapsed && (
                 <div className="p-4 mt-auto border-t border-gray-700">
                     <div className='bg-gray-800 rounded-lg p-3 text-center'>
-                        <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'><FaClock/> Live Data Feed</p>
-                        <p className={`text-sm font-semibold text-green-400`}>Last Updated: {lastUpdated}</p>
+                         {/* R-STRATEGIC-2: Time Synchronization Visual */}
+                        <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'>
+                            <FaClock/> Live Data Feed 
+                            <span className={`w-2 h-2 rounded-full ml-1 ${isFeedActive ? 'bg-green-500 gps-pulse-small' : 'bg-red-500'}`}></span>
+                        </p>
+                        <p className={`text-sm font-semibold ${isFeedActive ? 'text-green-400' : 'text-red-400'}`}>Last Updated: {lastUpdated}</p>
                     </div>
                 </div>
             )}
@@ -199,15 +207,22 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
 
     let displayValue = title.includes('Avg. Wait Time') ? `${value}` : `${value}`;
     
-    // START FIX: Only show FaInfoCircle when onClick is provided (for the critical hospitals modal)
+    // R-STRATEGIC-1: Determine background tint for KPI card
+    let cardBgStyle: { backgroundColor: string; borderColor: string } = { backgroundColor: COLORS.bgWhite, borderColor: COLORS.textLight };
+    if (title === "National BOR") {
+        if (parseFloat(value) > 85) cardBgStyle = { backgroundColor: COLORS.bgAlert, borderColor: COLORS.alertRed };
+        else if (parseFloat(value) > 75) cardBgStyle = { backgroundColor: COLORS.bgWarning, borderColor: COLORS.warningOrange };
+    } else if (title === "Hospitals >85% BOR" && parseFloat(value) > 15) {
+        cardBgStyle = { backgroundColor: COLORS.bgAlert, borderColor: COLORS.alertRed };
+    } else if (title === "Avg. Wait Time" && parseFloat(value) > 120) {
+        cardBgStyle = { backgroundColor: COLORS.bgAlert, borderColor: COLORS.alertRed };
+    }
+    
     const showInfoIcon = !!onClick; 
-    // END FIX
 
     return (
-        <div onClick={onClick} className={`text-center group transition-all duration-300 relative px-2 ${onClick ? 'cursor-pointer' : ''}`}>
-            {/* START FIX: Conditional rendering for the info icon */}
-            {showInfoIcon && <FaInfoCircle className="absolute top-0 right-1 text-gray-300 group-hover:text-blue-500 transition-colors" size={10} />}
-            {/* END FIX */}
+        <div onClick={onClick} className={`text-center group transition-all duration-300 relative px-2 py-2 border-l border-r border-transparent ${onClick ? 'cursor-pointer hover:shadow-lg' : ''}`} style={cardBgStyle}>
+            {showInfoIcon && <FaInfoCircle className="absolute top-1 right-1 text-gray-300 group-hover:text-blue-500 transition-colors" size={10} />}
             <p className="text-[11px] font-semibold text-gray-500 flex items-center justify-center gap-1 leading-tight h-6 truncate">
                 <Icon size={10} style={{ color }}/> <span>{title}</span>
             </p>
@@ -407,8 +422,20 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     const [showCriticalModal, setShowCriticalModal] = useState(false);
     const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
     const [toast, setToast] = useState<{message: string | null, type: string | null}>({message: null, type: null});
+    const [isFeedActive, setIsFeedActive] = useState(true); // R-STRATEGIC-2: New state for feed status
+
     const modalRef = useRef(null);
     const t = useTranslations();
+
+    // R-STRATEGIC-2: Time tracking to determine if feed is active
+    const lastFeedTime = useRef(Date.now());
+    useEffect(() => {
+        // Update lastFeedTime whenever liveData updates, which happens every 3 seconds from simulationEngine
+        if(liveData.length > 0) {
+            lastFeedTime.current = Date.now();
+        }
+    }, [liveData]);
+
 
     // FIX: Function declaration wrapped in useCallback to resolve TS7006/TS7031 on parameter typing
     const showToast = useCallback((message: string, type: string = 'info') => {
@@ -425,8 +452,22 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     };
 
     useEffect(() => {
-        const pingInterval = setInterval(() => setPing(80 + Math.random() * 50), 8000);
-        const timeInterval = setInterval(() => setLastUpdated(new Date().toLocaleTimeString()), 5000);
+        let pingInterval: NodeJS.Timeout;
+        let timeInterval: NodeJS.Timeout;
+        
+        pingInterval = setInterval(() => setPing(80 + Math.random() * 50), 8000);
+        
+        // R-STRATEGIC-2: Update UI time and check for feed activity
+        timeInterval = setInterval(() => {
+            setLastUpdated(new Date().toLocaleTimeString());
+            // If the time since the last data update exceeds the simulation interval (3000ms) + buffer (1000ms)
+            if (Date.now() - lastFeedTime.current > 4000) { 
+                 setIsFeedActive(false);
+            } else {
+                 setIsFeedActive(true);
+            }
+        }, 1000); 
+
         return () => {
             clearInterval(pingInterval);
             clearInterval(timeInterval);
@@ -521,7 +562,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
 
     const handleDeclareMci = () => {
         const regionToDeclare = mciRegion as LiveHospitalData['region'];
-        if (mciRegion && mciRegion !== 'None' && mciConfirmText === 'CONFIRM') {
+        // R-STRATEGIC-3: Implement case-insensitive check
+        if (mciRegion && mciRegion !== 'None' && mciConfirmText.toUpperCase() === 'CONFIRM') { 
             setMciState({ isActive: true, region: regionToDeclare });
             showToast(`CAPACITY ALERT DECLARED: Coordinated response protocols are now active for the ${regionToDeclare} zone.`, 'error');
             setMciRegion('None');
@@ -530,7 +572,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     };
     
     const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
-    const canDeclareMci = mciRegion !== 'None' && mciConfirmText === 'CONFIRM' && eligibleMciRegions.includes(mciRegion);
+    // R-STRATEGIC-3: Apply case-insensitive check
+    const canDeclareMci = mciRegion !== 'None' && mciConfirmText.toUpperCase() === 'CONFIRM' && eligibleMciRegions.includes(mciRegion); 
     
     if (isLoggingOut) return <LogoutScreen />;
     if (!isAuthenticated) {
@@ -547,20 +590,21 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         <div className="flex flex-col h-screen font-sans overflow-hidden bg-slate-100">
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
-                <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} />
-                {/* START FIX: Padding reduced from p-2 to p-1.5 for minimal spacing and to eliminate the scrollbar */}
-                <main className="flex-grow flex flex-col p-0 overflow-y-auto gap-2">
-                {/* END FIX */}
+                {/* R-STRATEGIC-2: Pass feed status to sidebar */}
+                <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} isFeedActive={isFeedActive} /> 
+                
+                {/* A. Layout Fix: Change p-0 to pt-2 pb-2 px-2 for overlap fix and single scroll */}
+                <main className="flex-grow flex flex-col pt-2 pb-2 px-2 overflow-y-auto gap-2">
+                    
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
-                    <div className='grid grid-cols-6 bg-white p-2 rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
-                        {/* START FIX: Removed onClick from all KPIs except 'Hospitals >85% BOR' to remove the info icon */}
+                    {/* Note: KPIMetric handles background and border tinting now (R-STRATEGIC-1) */}
+                    <div className='grid grid-cols-6 bg-white rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={undefined} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
                         <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={undefined} />
                         <KpiMetric title="Avg. Length of Stay" value={nationalStats.avgALOS.toFixed(1)} unit=" days" color={COLORS.safeGreen} icon={FaProcedures} isAlert={nationalStats.avgALOS > 6} trend={nationalStats.trend_alos} onClick={undefined} />
                         <KpiMetric title="Staff Duty Load" value={nationalStats.avgStaffFatigue.toFixed(1)} unit="%" color={COLORS.staffFatigue} icon={FaUserMd} isAlert={nationalStats.avgStaffFatigue > 70} trend={nationalStats.trend_fatigue} onClick={undefined}/>
                         <KpiMetric title="Patient Experience" value={nationalStats.avgSatisfaction.toFixed(1)} unit="%" color={COLORS.patientSatisfaction} icon={FaSmile} isAlert={nationalStats.avgSatisfaction < 65} trend={nationalStats.trend_satisfaction} onClick={undefined}/>
-                        {/* END FIX */}
                     </div>
 
                     {/* CHART AND ALERT PANELS (2-column split layout from Screenshot 308) */}
@@ -601,7 +645,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                                             DECLARE SHORTAGE
                                         </button>
                                         <p className="text-[10px] text-center font-semibold py-0.5 px-1 rounded bg-red-50 text-red-700">
-                                            Activates upon &gt;90% critical hospitals in a zone.
+                                            Activates upon >90% critical hospitals in a zone.
                                         </p>
                                     </div>
                                 )}
