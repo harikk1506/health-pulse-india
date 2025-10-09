@@ -642,10 +642,10 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                                             disabled={!canDeclareMci}
                                             className={`w-full font-bold py-2 rounded-lg text-white text-base transition-all duration-300 ${canDeclareMci ? 'bg-red-600 hover:bg-red-700 control-centre-button' : 'bg-gray-400 cursor-not-allowed'}`}
                                         >
-                                            DECLARE SHORTAGE
+ DECLARE SHORTAGE
                                         </button>
                                         <p className="text-[10px] text-center font-semibold py-0.5 px-1 rounded bg-red-50 text-red-700">
-                                            Activates upon >90% critical hospitals in a zone.
+                                            Activates upon &gt;90% critical hospitals in a zone. 
                                         </p>
                                     </div>
                                 )}
