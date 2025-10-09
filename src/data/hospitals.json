@@ -2913,18 +2913,18 @@
   },
   {
     "id": 92,
-    "name": "Sanjay Gandhi Postgraduate Institute of Medical Sciences (SGPGIMS)",
+    "name": "Sanjay Gandhi Post Graduate Institute of Medical Sciences, Lucknow",
     "state": "Uttar Pradesh",
     "type": "Government (State)",
     "address": "Rae Bareli Road, Lucknow, Uttar Pradesh, India",
     "coords": [
       26.74,
-      80.95
+      80.86
     ],
     "googleRating": 3.9,
     "totalBeds": 1600,
     "totalICU": 275,
-    "helpline": "0522-2494470",
+    "helpline": "0522-2494000",
     "minConsultCharge": 50,
     "opdOpen": "09:00",
     "opdClose": "17:00",

@@ -270,7 +270,7 @@ const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: G
                             onClick={() => setDropdownOpen(p => !p)}
                             className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors"
                         >
-                            {t(`portal.${activePortal.toLowerCase()}`)} <FaChevronDown size={12}/>
+                            {t(`portal.${activePortal.toLowerCase()}`)} <FaChevronDown size={12} />
                         </button>
                         {isDropdownOpen && (
                             <div className="absolute right-0 top-12 bg-white rounded-lg shadow-xl border z-50 w-48 py-1">
@@ -485,6 +485,20 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             if (current < prev) return 'down';
             return 'stable';
         };
+        
+        // --- TRUE AVERAGE BOR CALCULATION FIX ---
+        const publicHospitals = liveData.filter(h => h.type.toLowerCase().includes('government') || h.type.toLowerCase().includes('ut'));
+        const totalPublicBeds = publicHospitals.reduce((acc, h) => acc + h.totalBeds, 0);
+        const occupiedPublicBeds = publicHospitals.reduce((acc, h) => acc + h.occupiedBeds, 0);
+        const publicSectorOccupancy = totalPublicBeds > 0 ? (occupiedPublicBeds / totalPublicBeds) * 100 : 0;
+
+        // Grouping private/trust/corporate
+        const privateHospitals = liveData.filter(h => h.type.toLowerCase().includes('private') || h.type.toLowerCase().includes('trust') || h.type.toLowerCase().includes('corporate'));
+        const totalPrivateBeds = privateHospitals.reduce((acc, h) => acc + h.totalBeds, 0);
+        const occupiedPrivateBeds = privateHospitals.reduce((acc, h) => acc + h.occupiedBeds, 0);
+        const privateSectorOccupancy = totalPrivateBeds > 0 ? (occupiedPrivateBeds / totalPrivateBeds) * 100 : 0;
+        // --- END TRUE AVERAGE BOR CALCULATION FIX ---
+
 
         const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
         const criticalHospitalPercent = (criticalHospitals.length / liveData.length) * 100;
@@ -518,9 +532,9 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             avgSatisfaction: latest.avgSatisfaction,
             trend_satisfaction: getTrend(latest.avgSatisfaction, previous.avgSatisfaction),
 
-            // Row 2 (Sub-Charts) - Using calculated mock data
-            publicSectorOccupancy: (latest.avgOccupancy * 0.95),
-            privateSectorOccupancy: (latest.avgOccupancy * 1.15) - 10,
+            // FIXED: Using the calculated true averages instead of old proportional formulas
+            publicSectorOccupancy,
+            privateSectorOccupancy,
             regionalOccupancy: latest.regionalOccupancy,
         };
     }, [liveData, nationalHistory]);
@@ -593,7 +607,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                 {/* R-STRATEGIC-2: Pass feed status to sidebar */}
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} isFeedActive={isFeedActive} />
 
-                {/* FINAL FIX: The user's suggested change is applied here */}
+                {/* FINAL FIX: The main container uses px-2 py-0 to eliminate the scrollbar */}
                 <main className="flex-grow flex flex-col px-2 py-0 overflow-y-auto gap-2">
 
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
