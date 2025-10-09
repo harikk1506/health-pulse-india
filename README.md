@@ -6,7 +6,7 @@
 
 > To create a faithful, data-grounded digital twin of India’s hospital infrastructure to support data-informed decision-making for all citizens.
 
-This project is the practical implementation of the theoretical framework proposed in the preprint manuscript, **"[Unlocking India's Hospital Beds: Why A Digital Portal Is the Cure for a Stretched System](https://preprints.jmir.org/preprint/84673)"**. It aims to solve the critical "information asymmetry" in India's healthcare system by creating a single, reliable source of truth for hospital capacity.
+This project is the practical implementation of the theoretical framework proposed in **my preprint manuscript**, **"[Unlocking India's Hospital Beds: Why A Digital Portal Is the Cure for a Stretched System](https://preprints.jmir.org/preprint/84673)"**. It aims to solve the critical "information asymmetry" in India's healthcare system by creating a single, reliable source of truth for hospital capacity.
 
 ---
 
