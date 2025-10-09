@@ -15,10 +15,10 @@ export const HospitalDetailView = ({ hospital, onBack }: { hospital: LiveHospita
 
     const [lat, lng] = hospital.coords;
     
-    // FIX 1 (Final): Embeds map using Hospital Name + Coords. This forces the pin to display the name.
-    const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(`${hospital.name}@${lat},${lng}`)}&hl=en&z=15&output=embed&key=${API_KEY}`; 
+    // CORRECTED MAP URL LOGIC
+    const mapQuery = `${hospital.name}, ${hospital.address}`;
+    const mapSrc = `https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${encodeURIComponent(mapQuery)}`;
     
-    // FIX 2: Correct directions URL structure for the link button (opens external map/app)
     const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
 
     const eta = calculateTheniETA(hospital.distance || 0);

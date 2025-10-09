@@ -13,24 +13,9 @@ export const HospitalListItem = ({ hospital, onSelect }: { hospital: LiveHospita
     else if (typeText.toLowerCase().includes('private')) { typeColor = 'bg-green-100 text-green-800'; } 
     else if (typeText.toLowerCase().includes('trust')) { typeColor = 'bg-purple-100 text-purple-800'; } 
     
-    // R-PUBLIC-1-REVISED: Triage Badge Logic
-    // Using smallest horizontal padding (px-1) for minimal size
-    const badgeClass = "text-xs font-bold text-white px-1 py-0.5 rounded-full"; 
-
-    const triageBadges = [];
-    if (hospital.availableICUBeds <= 0) {
-        triageBadges.push(<span key="icu" className={`${badgeClass} bg-red-600`}>ICU FULL</span>);
-    }
-    if (hospital.availableBeds < 10) {
-        triageBadges.push(<span key="beds" className={`${badgeClass} bg-amber-600`}>LOW BEDS</span>);
-    }
-    if (hospital.currentWaitTime > 120) { 
-        triageBadges.push(<span key="wait" className={`${badgeClass} bg-rose-600`}>&gt;120m WAIT</span>);
-    }
-
     return (
         <div onClick={onSelect} className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 ${occupancyColor} overflow-hidden flex flex-col relative`}>
-            <div className="p-4"> {/* Reverting to p-4 for better aesthetics, compensating with inner margins */}
+            <div className="p-4">
                 <div className="flex justify-between items-start">
                     <h3 
                         className={`${nameSize} font-bold text-gray-800 pr-2 flex-1`} 
@@ -48,10 +33,6 @@ export const HospitalListItem = ({ hospital, onSelect }: { hospital: LiveHospita
                 <div className="flex justify-between items-center mt-1">
                     <p className="text-xs text-gray-500 flex items-center gap-1"><FaStar className='text-yellow-500'/> {hospital.googleRating.toFixed(1)}</p>
                     <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${typeColor}`}>{typeText}</span>
-                </div>
-                {/* FINAL FIX: Tightened margin to pt-1 to gain vertical space and prevent card scrolling */}
-                <div className='flex flex-wrap gap-1 pt-1'> 
-                    {triageBadges}
                 </div>
             </div>
             <div className="p-3 border-t bg-slate-50 flex justify-around text-xs font-semibold">

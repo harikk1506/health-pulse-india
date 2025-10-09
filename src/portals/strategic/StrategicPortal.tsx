@@ -597,7 +597,8 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                 <main className="flex-grow flex flex-col px-2 py-1 overflow-y-auto gap-2"> 
                     
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
-                    <div className='grid grid-cols-6 bg-white rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
+                    {/* NEW FIX: Added mt-1 to the top KPI grid for minimal vertical clearance from the header */}
+                    <div className='grid grid-cols-6 bg-white rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200 mt-1'>
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={undefined} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
                         <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={undefined} />
