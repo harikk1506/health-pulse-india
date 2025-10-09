@@ -682,7 +682,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalFooter ping={Math.round(ping)} />
 
              <CSSTransition nodeRef={modalRef} in={showCriticalModal} timeout={300} classNames="dropdown" unmountOnExit>
-                 <div ref={modalRecRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
+                 <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
                     <CriticalHospitalsModal onClose={() => setShowCriticalModal(false)} criticalHospitals={criticalHospitals} liveData={liveData} />
                  </div>
             </CSSTransition>
