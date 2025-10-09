@@ -5,7 +5,7 @@ import type { Portal, LiveHospitalData, HistoricalStat } from '../../types';
 import { StrategicContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
 import { FaGlobeAsia, FaExclamationTriangle, FaSpinner, FaBed, FaSignOutAlt, FaUserShield, FaBars, FaSitemap, FaTimes, FaHeartbeat, FaArrowUp, FaArrowDown, FaChevronDown, FaSmile, FaUserMd, FaShieldAlt, FaProcedures, FaMapMarkedAlt, FaTasks, FaClock, FaCheckCircle, FaHome, FaInfoCircle } from 'react-icons/fa';
-import { IconType } from 'react-icons'; 
+import { IconType } from 'react-icons';
 import IndianLogo from '../../assets/logo.svg';
 import { CSSTransition } from 'react-transition-group';
 
@@ -40,7 +40,7 @@ interface NationalStatsType {
     trend_alos: TrendType;
     adequateResourcePercent: number;
     trend_resources: TrendType;
-    avgStaffFatigue: number; 
+    avgStaffFatigue: number;
     trend_fatigue: TrendType;
     avgSatisfaction: number;
     trend_satisfaction: TrendType;
@@ -60,8 +60,8 @@ const COLORS = {
     warningOrange: '#dd6b20',
     safeGreen: '#38a169',
     primaryBlue: '#3182ce',
-    staffFatigue: '#d69e2e', 
-    patientSatisfaction: '#805ad5', 
+    staffFatigue: '#d69e2e',
+    patientSatisfaction: '#805ad5',
     publicSector: '#06b6d4',
     privateSector: '#6366f1',
     textDark: '#2d3748',
@@ -110,7 +110,7 @@ const PortalHeader = ({ activePortal, setActivePortal, onLogout, isSidebarCollap
                     </h1>
                 </div>
             </div>
-            
+
             <div className="flex items-center gap-4 relative">
                  <button onClick={onGoToIntro} className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors" title="Go to Intro Page">
                     <FaHome />
@@ -161,29 +161,29 @@ const StrategicSidebar = ({ isCollapsed, lastUpdated, isFeedActive }: { isCollap
         <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-slate-900 text-white flex flex-col shadow-2xl flex-shrink-0 h-full transition-all duration-300 z-10`}>
             <div className={`p-4 bg-slate-800 flex items-center border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
                 <div className="w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0">SC</div>
-                {!isCollapsed && ( 
-                    <div className="ml-3"> 
-                        <p className="text-sm font-semibold text-white">Strategic Command</p> 
+                {!isCollapsed && (
+                    <div className="ml-3">
+                        <p className="text-sm font-semibold text-white">Strategic Command</p>
                         <p className="text-xs text-gray-300">MoHFW</p>
                         <div className="mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-green-600 inline-block">Active Session</div>
-                    </div> 
+                    </div>
                 )}
             </div>
             <nav className="flex-grow p-4 space-y-1">
-                <button 
-                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`} 
+                <button
+                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`}
                     title="National Overview"
                 >
-                    <FaSitemap size={20} /> 
-                    {!isCollapsed && <span className="truncate">National Overview</span>} 
-                </button> 
+                    <FaSitemap size={20} />
+                    {!isCollapsed && <span className="truncate">National Overview</span>}
+                </button>
             </nav>
             {!isCollapsed && (
                 <div className="p-4 mt-auto border-t border-gray-700">
                     <div className='bg-gray-800 rounded-lg p-3 text-center'>
                          {/* R-STRATEGIC-2: Time Synchronization Visual */}
                         <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'>
-                            <FaClock/> Live Data Feed 
+                            <FaClock/> Live Data Feed
                             <span className={`w-2 h-2 rounded-full ml-1 ${isFeedActive ? 'bg-green-500 gps-pulse-small' : 'bg-red-500'}`}></span>
                         </p>
                         <p className={`text-sm font-semibold ${isFeedActive ? 'text-green-400' : 'text-red-400'}`}>Last Updated: {lastUpdated}</p>
@@ -197,7 +197,7 @@ const StrategicSidebar = ({ isCollapsed, lastUpdated, isFeedActive }: { isCollap
 const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClick, trend }: KpiProps) => {
     const TrendIcon = trend === 'up' ? FaArrowUp : FaArrowDown;
     let trendColor: string = '';
-    
+
     // Note: This logic for trend color is retained from your provided code
     if (trend === 'up') {
         trendColor = ['Adequate Resources', 'Patient Experience'].includes(title) ? COLORS.safeGreen : COLORS.alertRed;
@@ -206,7 +206,7 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
     }
 
     let displayValue = title.includes('Avg. Wait Time') ? `${value}` : `${value}`;
-    
+
     // R-STRATEGIC-1: Determine background tint for KPI card
     let cardBgStyle: { backgroundColor: string; borderColor: string } = { backgroundColor: COLORS.bgWhite, borderColor: COLORS.textLight };
     if (title === "National BOR") {
@@ -217,8 +217,8 @@ const KpiMetric = ({ title, value, unit = '', color, icon: Icon, isAlert, onClic
     } else if (title === "Avg. Wait Time" && parseFloat(value) > 120) {
         cardBgStyle = { backgroundColor: COLORS.bgAlert, borderColor: COLORS.alertRed };
     }
-    
-    const showInfoIcon = !!onClick; 
+
+    const showInfoIcon = !!onClick;
 
     return (
         <div onClick={onClick} className={`text-center group transition-all duration-300 relative px-2 py-2 border-l border-r border-transparent ${onClick ? 'cursor-pointer hover:shadow-lg' : ''}`} style={cardBgStyle}>
@@ -322,10 +322,10 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onCl
         criticalHospitals.forEach(h => {
             if (regions[h.region] !== undefined) {
                  // TS7053 Fix: Safe indexing
-                criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
+                criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1;
             }
         });
-        
+
         return ['North', 'West', 'Central', 'East', 'South'].map(regionName => ({
             name: regionName,
             percentage: Math.round((criticalCounts[regionName] / regions[regionName]) * 100)
@@ -357,7 +357,7 @@ const CriticalHospitalsModal = ({ onClose, criticalHospitals, liveData }: { onCl
 
 const RegionalHotspotsChart = ({ stats }: { stats: { region: string, avgOccupancy: number }[] }) => {
     return (
-        <div className="bg-white p-3 rounded-lg shadow-lg h-full flex flex-col border border-slate-200">
+        <div className="bg-white px-3 py-2 rounded-lg shadow-lg h-full flex flex-col border border-slate-200">
             <h2 className="text-base font-bold flex items-center gap-2 flex-shrink-0 font-display" style={{ color: COLORS.textDark }}><FaMapMarkedAlt /> Zonal Bed Occupancy</h2>
             <div className="flex-grow flex flex-col justify-around gap-1 px-1 pt-1 relative">
                 {/* Note: Order is hardcoded as per screenshot 308 (North, West, Central, East, South) */}
@@ -396,9 +396,9 @@ const SystemHealthPanel = ({ stats }: { stats: NationalStatsType }) => {
             </div>
         </div>
     );
-    
+
     return (
-        <div className="bg-white p-3 rounded-lg shadow-lg h-full flex flex-col border border-slate-200">
+        <div className="bg-white px-3 py-2 rounded-lg shadow-lg h-full flex flex-col border border-slate-200">
              <h2 className="text-base font-bold flex items-center gap-2 font-display" style={{ color: COLORS.textDark }}><FaTasks /> National Performance Index</h2>
              <div className="flex-grow flex flex-col justify-around gap-1 mt-1">
                 {/* Note: Using stats object that contains the correct public/private keys. */}
@@ -454,19 +454,19 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     useEffect(() => {
         let pingInterval: NodeJS.Timeout;
         let timeInterval: NodeJS.Timeout;
-        
+
         pingInterval = setInterval(() => setPing(80 + Math.random() * 50), 8000);
-        
+
         // R-STRATEGIC-2: Update UI time and check for feed activity
         timeInterval = setInterval(() => {
             setLastUpdated(new Date().toLocaleTimeString());
             // If the time since the last data update exceeds the simulation interval (3000ms) + buffer (1000ms)
-            if (Date.now() - lastFeedTime.current > 4000) { 
+            if (Date.now() - lastFeedTime.current > 4000) {
                  setIsFeedActive(false);
             } else {
                  setIsFeedActive(true);
             }
-        }, 1000); 
+        }, 1000);
 
         return () => {
             clearInterval(pingInterval);
@@ -476,7 +476,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
 
     const nationalStats: NationalStatsType | null = useMemo(() => {
         if (liveData.length === 0 || nationalHistory.length < 2) return null;
-        
+
         const latest: HistoricalStat = nationalHistory[nationalHistory.length - 1];
         const previous: HistoricalStat = nationalHistory[nationalHistory.length - 2];
 
@@ -489,7 +489,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
         const criticalHospitalPercent = (criticalHospitals.length / liveData.length) * 100;
         const prevCriticalHospitalsCount = previous.criticalHospitals;
-        
+
         const resourceStrainedHospitals = liveData.filter(h => h.oxygen_supply_days < 10 || h.ppe_stock_level === 'Critical' || h.ppe_stock_level === 'Stockout');
         const adequateResourcePercent = (1 - (resourceStrainedHospitals.length / liveData.length)) * 100;
         const prevAdequateResourcePercent = (1 - (nationalHistory[nationalHistory.length - 2].criticalHospitals / liveData.length)) * 100;
@@ -499,37 +499,37 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         return {
             avgOccupancy: latest.avgOccupancy,
             trend_bor: getTrend(latest.avgOccupancy, previous.avgOccupancy),
-            
+
             criticalHospitalPercent: criticalHospitalPercent,
             trend_critical: getTrend(criticalHospitals.length, prevCriticalHospitalsCount),
-            
+
             avgWaitTime: latest.avgWaitTime,
-            trend_wait: getTrend(previous.avgWaitTime, latest.avgWaitTime), 
-            
+            trend_wait: getTrend(previous.avgWaitTime, latest.avgWaitTime),
+
             avgALOS: liveData.reduce((acc, h) => acc + h.ALOS_days, 0) / liveData.length,
-            trend_alos: getTrend(liveData.reduce((acc, h) => acc + h.ALOS_days, 0), liveData.reduce((acc, h) => acc + h.ALOS_days, 0)), 
-            
+            trend_alos: getTrend(liveData.reduce((acc, h) => acc + h.ALOS_days, 0), liveData.reduce((acc, h) => acc + h.ALOS_days, 0)),
+
             adequateResourcePercent: adequateResourcePercent,
-            trend_resources: getTrend(adequateResourcePercent, prevAdequateResourcePercent), 
-            
-            avgStaffFatigue: latest.avgStaffFatigue, 
+            trend_resources: getTrend(adequateResourcePercent, prevAdequateResourcePercent),
+
+            avgStaffFatigue: latest.avgStaffFatigue,
             trend_fatigue: getTrend(latest.avgStaffFatigue, previous.avgStaffFatigue),
 
             avgSatisfaction: latest.avgSatisfaction,
             trend_satisfaction: getTrend(latest.avgSatisfaction, previous.avgSatisfaction),
-            
+
             // Row 2 (Sub-Charts) - Using calculated mock data
             publicSectorOccupancy: (latest.avgOccupancy * 0.95),
             privateSectorOccupancy: (latest.avgOccupancy * 1.15) - 10,
             regionalOccupancy: latest.regionalOccupancy,
         };
     }, [liveData, nationalHistory]);
-    
+
     // Format regional stats for the chart
     const regionalStats = useMemo(() => {
         if (!nationalStats || !nationalStats.regionalOccupancy) return [];
         const latestOccupancy = nationalStats.regionalOccupancy;
-        
+
         const orderedRegions = ['North', 'West', 'Central', 'East', 'South'];
         return orderedRegions.map(region => ({
             region,
@@ -543,18 +543,18 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
         const regions: Record<string, number> = { North: 27, South: 41, East: 24, West: 29, Central: 29 };
         const criticalCounts: Record<string, number> = { North: 0, South: 0, East: 0, West: 0, Central: 0 };
         const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
-        
+
         criticalHospitals.forEach(h => {
             // TS7053 Fix: Safe indexing
-            criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1; 
+            criticalCounts[h.region] = (criticalCounts[h.region] || 0) + 1;
         });
-        
+
         return Object.keys(regions).filter(regionName => {
             const percentage = (criticalCounts[regionName] / regions[regionName]) * 100;
             return percentage >= 90;
         });
     }, [nationalStats, liveData]);
-    
+
     const isAnyZoneCritical = useMemo(() => {
         if (!eligibleMciRegions) return false;
         return eligibleMciRegions.length > 0;
@@ -563,18 +563,18 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     const handleDeclareMci = () => {
         const regionToDeclare = mciRegion as LiveHospitalData['region'];
         // R-STRATEGIC-3: Implement case-insensitive check
-        if (mciRegion && mciRegion !== 'None' && mciConfirmText.toUpperCase() === 'CONFIRM') { 
+        if (mciRegion && mciRegion !== 'None' && mciConfirmText.toUpperCase() === 'CONFIRM') {
             setMciState({ isActive: true, region: regionToDeclare });
             showToast(`CAPACITY ALERT DECLARED: Coordinated response protocols are now active for the ${regionToDeclare} zone.`, 'error');
             setMciRegion('None');
             setMciConfirmText('');
         }
     };
-    
+
     const criticalHospitals = liveData.filter(h => h.bedOccupancy > 85);
     // R-STRATEGIC-3: Apply case-insensitive check
-    const canDeclareMci = mciRegion !== 'None' && mciConfirmText.toUpperCase() === 'CONFIRM' && eligibleMciRegions.includes(mciRegion); 
-    
+    const canDeclareMci = mciRegion !== 'None' && mciConfirmText.toUpperCase() === 'CONFIRM' && eligibleMciRegions.includes(mciRegion);
+
     if (isLoggingOut) return <LogoutScreen />;
     if (!isAuthenticated) {
         // LoginPage handles authentication and redirects upon success
@@ -591,13 +591,12 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
             <div className="flex flex-grow overflow-hidden min-h-0">
                 {/* R-STRATEGIC-2: Pass feed status to sidebar */}
-                <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} isFeedActive={isFeedActive} /> 
-                
-                {/* A. Layout Fix: Using px-2 py-1 for minimal buffer to resolve scrolling */}
-                <main className="flex-grow flex flex-col px-2 py-1 overflow-y-auto gap-2"> 
-                    
+                <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} isFeedActive={isFeedActive} />
+
+                {/* FINAL FIX: The user's suggested change is applied here */}
+                <main className="flex-grow flex flex-col px-2 py-0 overflow-y-auto gap-2">
+
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
-                    {/* NEW FIX: Added mt-1 to the top KPI grid for minimal vertical clearance from the header */}
                     <div className='grid grid-cols-6 bg-white rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200 mt-1'>
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={undefined} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
@@ -613,11 +612,11 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                         <div className="col-span-7">
                             <RegionalHotspotsChart stats={regionalStats} />
                         </div>
-                        
+
                         {/* Right Column: Performance Index and BCAP Panel (col-span-5) */}
                         <div className="col-span-5 flex flex-col gap-2">
                             <SystemHealthPanel stats={nationalStats} />
-                            <div className="bg-white p-3 rounded-lg shadow-lg flex-grow flex flex-col border border-slate-200">
+                            <div className="bg-white px-3 py-2 rounded-lg shadow-lg flex-grow flex flex-col border border-slate-200">
                                 <h2 className="text-base font-bold flex items-center gap-2" style={{ color: COLORS.textDark }}><FaShieldAlt /> Bed Capacity Alert Panel (BCAP)</h2>
                                 {mciState.isActive ? (
                                     <div className="text-center flex-grow flex flex-col justify-center">
@@ -645,7 +644,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                                             DECLARE SHORTAGE
                                         </button>
                                         <p className="text-[10px] text-center font-semibold py-0.5 px-1 rounded bg-red-50 text-red-700">
-                                            Activates upon &gt;90% critical hospitals in a zone. 
+                                            Activates upon &gt;90% critical hospitals in a zone.
                                         </p>
                                     </div>
                                 )}
@@ -655,7 +654,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                 </main>
             </div>
             <PortalFooter ping={Math.round(ping)} />
-            
+
              <CSSTransition nodeRef={modalRef} in={showCriticalModal} timeout={300} classNames="dropdown" unmountOnExit>
                  <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
                     <CriticalHospitalsModal onClose={() => setShowCriticalModal(false)} criticalHospitals={criticalHospitals} liveData={liveData} />
