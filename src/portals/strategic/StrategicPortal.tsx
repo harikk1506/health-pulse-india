@@ -427,7 +427,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     const modalRef = useRef(null);
     const t = useTranslations();
 
-    // R-STRATEGIC-2: Time tracking to determine if feed is active
+    // R-STRATEGIC-2: Time tracking setup
     const lastFeedTime = useRef(Date.now());
     useEffect(() => {
         // Update lastFeedTime whenever liveData updates, which happens every 3 seconds from simulationEngine
@@ -593,11 +593,10 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                 {/* R-STRATEGIC-2: Pass feed status to sidebar */}
                 <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} isFeedActive={isFeedActive} /> 
                 
-                {/* A. Layout Fix: Change p-0 to pt-2 pb-2 px-2 for overlap fix and single scroll */}
-                <main className="flex-grow flex flex-col pt-2 pb-2 px-2 overflow-y-auto gap-2">
+                {/* A. Layout Fix: Using px-2 py-1 for minimal buffer to resolve scrolling */}
+                <main className="flex-grow flex flex-col px-2 py-1 overflow-y-auto gap-2"> 
                     
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
-                    {/* Note: KPIMetric handles background and border tinting now (R-STRATEGIC-1) */}
                     <div className='grid grid-cols-6 bg-white rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200'>
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={undefined} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
@@ -642,7 +641,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                                             disabled={!canDeclareMci}
                                             className={`w-full font-bold py-2 rounded-lg text-white text-base transition-all duration-300 ${canDeclareMci ? 'bg-red-600 hover:bg-red-700 control-centre-button' : 'bg-gray-400 cursor-not-allowed'}`}
                                         >
- DECLARE SHORTAGE
+                                            DECLARE SHORTAGE
                                         </button>
                                         <p className="text-[10px] text-center font-semibold py-0.5 px-1 rounded bg-red-50 text-red-700">
                                             Activates upon &gt;90% critical hospitals in a zone. 

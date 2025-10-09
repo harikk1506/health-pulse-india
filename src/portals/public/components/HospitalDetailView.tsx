@@ -14,10 +14,9 @@ export const HospitalDetailView = ({ hospital, onBack }: { hospital: LiveHospita
     const isThisHospitalBlocked = hospital.id === 1 && isHospitalBlocked;
 
     const [lat, lng] = hospital.coords;
-    // const mapQuery = `${hospital.name}, ${hospital.address}`; <-- REMOVED to fix TS6133
     
-    // FIX 1: Correct URL structure for the embedded map (using lat/lng and API key for a standard embed)
-    const mapSrc = `https://maps.google.com/maps?q=${lat},${lng}&hl=en&z=15&output=embed&key=${API_KEY}`; 
+    // FIX 1 (Final): Embeds map using Hospital Name + Coords. This forces the pin to display the name.
+    const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(`${hospital.name}@${lat},${lng}`)}&hl=en&z=15&output=embed&key=${API_KEY}`; 
     
     // FIX 2: Correct directions URL structure for the link button (opens external map/app)
     const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
