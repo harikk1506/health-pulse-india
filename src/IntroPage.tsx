@@ -39,31 +39,31 @@ const IntroPage = ({ onEnter }: { onEnter: (portal: Portal) => void }) => {
                         <div className='p-3 bg-blue-50/70 border-l-4 border-blue-500 rounded-r-lg mb-4'>
                             <h4 className="font-semibold text-blue-900 mb-1 flex items-center gap-2 text-md tracking-wide font-display"><FaBullseye /> Core Vision</h4>
                             <blockquote className="text-sm text-blue-900/90 font-medium">
-                               To create a faithful, data grounded digital twin of India’s hospital infrastructure to support data informed decision making.
+                               To architect an evidence-based digital twin of India’s hospital bed infrastructure, democratising real-time access to combat data opacity.
                             </blockquote>
                         </div>
                         <div className="text-black/80 text-xs space-y-2 leading-relaxed font-normal">
                             <p>
-                                Born from a vision to model India’s complex health infrastructure, this project is a dynamic, data-driven simulation built to reflect how hospitals function, respond, and adapt under varying pressures.
+                                Engineered to model bed availability dynamics, this simulation stress-tests how health systems strain and respond under fluctuating occupancy pressures.
                             </p>
                             <p>
-                                It represents weeks of focused solo development, powered by a dataset of manually verified hospitals across five zones of India — refined over hours of validation to ensure reliability and precision.
+                                Underpinned by a manually curated pan-Indian dataset of 150 hospitals to ensure ground-truth fidelity.
                             </p>
                         </div>
                     </div>
                     <div className="flex flex-col h-full justify-between">
                         <div className="grid grid-cols-2 gap-4 flex-grow">
                             <PortalLink title="Public" description="View live hospital data" icon={FaUsers} onEnter={onEnter} portal="PUBLIC" colorClass="blue" />
-                            <PortalLink title="Emergency" description="Ambulance dispatch" icon={FaAmbulance} onEnter={onEnter} portal="EMERGENCY" colorClass="red" />
-                            <PortalLink title="Hospital" description="Manage a single facility" icon={FaHospitalUser} onEnter={onEnter} portal="HOSPITAL" colorClass="green" />
-                            <PortalLink title="Strategic" description="National command" icon={FaUniversity} onEnter={onEnter} portal="STRATEGIC" colorClass="purple" />
+                            <PortalLink title="Emergency" description="Smart ambulance routing" icon={FaAmbulance} onEnter={onEnter} portal="EMERGENCY" colorClass="red" />
+                            <PortalLink title="Hospital" description="Manage facility operations" icon={FaHospitalUser} onEnter={onEnter} portal="HOSPITAL" colorClass="green" />
+                            <PortalLink title="Strategic" description="National command centre" icon={FaUniversity} onEnter={onEnter} portal="STRATEGIC" colorClass="purple" />
                         </div>
                          <div className='text-sm mt-4 pt-3 pb-2 px-4 bg-amber-50/70 border-t-4 border-amber-400 rounded-b-lg'>
                            <h4 className="font-semibold text-amber-900 mb-2 flex items-center gap-2 text-md tracking-wide font-display"><FaBookOpen /> Instructions</h4>
                            <ul className="list-disc list-inside space-y-1 pl-1 font-medium text-amber-900/90 text-xs">
-                               <li>Click any portal to access its interactive dashboard.</li>
-                               <li>Some portals require clicking the authentication button.</li>
-                               <li>Switch portals anytime using the header menu.</li>
+                               <li>Click any portal to launch its dashboard.</li>
+                               <li>If prompted to login, click 'Authenticate'.</li>
+                               <li>Navigate between portals via the header menu.</li>
                            </ul>
                         </div>
                     </div>
