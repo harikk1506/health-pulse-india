@@ -104,7 +104,6 @@ const updateLiveMetrics = (hospital: LiveHospitalData): LiveHospitalData => {
 
     if (hospital.id === 150) {
         const FATIGUE_TARGET = 70.0, SATISFACTION_TARGET = 68.0, WAIT_TIME_TARGET = 120.0;
-        // FIX (VOLATILITY): Increased volatility factor for noticeable swing
         let fatigueChange = ((occupancyStrain - 0.8) * 1.8) + ((FATIGUE_TARGET - hospital.staffFatigue_score) * 0.1) + (Math.random() - 0.5) * 1.0; 
         staffFatigue_score = hospital.staffFatigue_score + Math.max(-MAX_FATIGUE_CHANGE, Math.min(MAX_FATIGUE_CHANGE, fatigueChange));
         
@@ -115,15 +114,12 @@ const updateLiveMetrics = (hospital: LiveHospitalData): LiveHospitalData => {
         patientSatisfaction_pct = hospital.patientSatisfaction_pct + Math.max(-MAX_SATISFACTION_CHANGE, Math.min(MAX_SATISFACTION_CHANGE, satisfactionChange));
     } else {
         const FATIGUE_RECOVERY_TARGET = 61;
-        // FIX (VOLATILITY): Increased fatigue change factor significantly
         let fatigueChange = ((occupancyStrain - 0.78) * 6.0) + ((FATIGUE_RECOVERY_TARGET - hospital.staffFatigue_score) * 0.25) + (Math.random() - 0.5) * 2.0; 
         staffFatigue_score = hospital.staffFatigue_score + Math.max(-MAX_FATIGUE_CHANGE, Math.min(MAX_FATIGUE_CHANGE, fatigueChange));
 
-        // FIX (VOLATILITY): Wait time calculation amplified
         currentWaitTime = hospital.avgWaitTime_mins * (1 + (staffFatigue_score / 100) * 0.3) * (occupancyStrain > 0.8 ? 1 + (occupancyStrain - 0.8) * 12 : 1); 
 
         const SATISFACTION_RECOVERY_TARGET = 71;
-        // FIX (VOLATILITY): Satisfaction change amplified
         let satisfactionChange = ((SATISFACTION_RECOVERY_TARGET - hospital.patientSatisfaction_pct) * 0.15) - ((staffFatigue_score - 61) * 1.0) - ((currentWaitTime / hospital.avgWaitTime_mins - 1) * 12) + (Math.random() - 0.5) * 2.5; 
         patientSatisfaction_pct = hospital.patientSatisfaction_pct + Math.max(-MAX_SATISFACTION_CHANGE, Math.min(MAX_SATISFACTION_CHANGE, satisfactionChange));
     }
@@ -131,22 +127,19 @@ const updateLiveMetrics = (hospital: LiveHospitalData): LiveHospitalData => {
     const bedOccupancy = (occupiedBeds / totalBeds) * 100;
     const icuBedOccupancy = totalICU > 0 ? (occupiedICUBeds / totalICU) * 100 : 0;
     
-    // --- DYNAMIC ALOS & RESOURCES ---
     const alos_days = 5.3 + (occupancyStrain - 0.75) * 2.5 + (staffFatigue_score / 100 - 0.6) * 1.5;
 
-    // FIX: Resource Depletion and Resupply Logic
     const oxygenConsumptionRate = (occupiedICUBeds / (totalICU || 1)) * 0.05 + (occupiedBeds / (totalBeds || 1)) * 0.01;
     oxygen_supply_days = Math.max(0, oxygen_supply_days - oxygenConsumptionRate);
-    if (oxygen_supply_days < 10 && Math.random() < 0.15) { // 15% chance of resupply if low
+    if (oxygen_supply_days < 10 && Math.random() < 0.15) { 
         oxygen_supply_days += Math.random() * 15 + 5;
     }
 
-    if (Math.random() < 0.05) { // 5% chance for PPE level to change
+    if (Math.random() < 0.05) { 
         const currentLevelIndex = PPE_LEVELS.indexOf(ppe_stock_level);
-        // More likely to improve from a bad state, less likely to degrade from a good state
-        if (currentLevelIndex > 1 && Math.random() < 0.3) { // 30% chance to improve from Critical/Stockout
+        if (currentLevelIndex > 1 && Math.random() < 0.3) { 
             ppe_stock_level = PPE_LEVELS[currentLevelIndex - 1];
-        } else if (currentLevelIndex < PPE_LEVELS.length - 1 && Math.random() < 0.1) { // 10% chance to degrade
+        } else if (currentLevelIndex < PPE_LEVELS.length - 1 && Math.random() < 0.1) { 
             ppe_stock_level = PPE_LEVELS[currentLevelIndex + 1];
         }
     }
@@ -209,6 +202,13 @@ const tick = () => {
     nationalHistory = [...nationalHistory.slice(1), newHistoryPoint];
     
     subscribers.forEach(callback => callback({ liveData: strategicLiveData, history: nationalHistory }));
+
+    // --- RECURSIVE VARIABLE TIMER START ---
+    // Calculates a random delay between 2000ms and 5000ms
+    // Occasional 'lag spikes' up to 6000ms will cause the UI to turn RED briefly
+    const randomDelay = Math.floor(Math.random() * 3000) + 2000; 
+    setTimeout(tick, randomDelay);
+    // --- RECURSIVE VARIABLE TIMER END ---
 };
 
 const start = () => {
@@ -217,11 +217,38 @@ const start = () => {
     setTimeout(() => {
         nationalHistory = generateInitialHistory();
         for(let i = 0; i < 30; i++){
-            tick();
+            // We run a few ticks instantly to fill initial history
+            const eligibleHospitals = originalHospitalData.filter(h => h.type.toLowerCase().includes('government (state)'));
+            const shuffled = [...eligibleHospitals].sort(() => 0.5 - Math.random());
+            dynamicHighStrainIds = shuffled.slice(0, 13 + Math.floor(Math.random()*2)).map(h => h.id);
+            strategicLiveData = strategicLiveData.map(h => updateLiveMetrics(h));
+            // (Simulating history filling without full tick overhead)
+            const totalBeds = strategicLiveData.reduce((acc, h) => acc + h.totalBeds, 0);
+            const occupiedBeds = strategicLiveData.reduce((acc, h) => acc + h.occupiedBeds, 0);
+            const regionalOccupancy: Record<string, number> = {};
+            ['North', 'South', 'East', 'West', 'Central'].forEach(region => {
+                const regionHospitals = strategicLiveData.filter(h => h.region === region);
+                const regionTotalBeds = regionHospitals.reduce((acc, h) => acc + h.totalBeds, 0);
+                const regionOccupiedBeds = regionHospitals.reduce((acc, h) => acc + h.occupiedBeds, 0);
+                regionalOccupancy[region] = regionTotalBeds > 0 ? (regionOccupiedBeds / regionTotalBeds) * 100 : 0;
+            });
+            const newHistoryPoint: HistoricalStat = {
+                date: new Date(Date.now() - (30 - i) * 60000).toISOString(),
+                avgOccupancy: totalBeds > 0 ? (occupiedBeds / totalBeds) * 100 : 0,
+                avgStaffFatigue: strategicLiveData.reduce((acc, h) => acc + h.staffFatigue_score, 0) / strategicLiveData.length,
+                avgSatisfaction: strategicLiveData.reduce((acc, h) => acc + h.patientSatisfaction_pct, 0) / strategicLiveData.length,
+                avgWaitTime: strategicLiveData.reduce((acc, h) => acc + h.currentWaitTime, 0) / strategicLiveData.length,
+                regionalOccupancy,
+                criticalHospitals: strategicLiveData.filter(h => h.bedOccupancy > 85).length,
+            };
+            nationalHistory = [...nationalHistory.slice(1), newHistoryPoint];
         }
+        
         isInitialized = true;
         subscribers.forEach(callback => callback({ liveData: strategicLiveData, history: nationalHistory }));
-        setInterval(tick, 3000);
+        
+        // Start the recursive variable loop
+        tick();
     }, 0);
 };
 

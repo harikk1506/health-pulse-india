@@ -149,7 +149,8 @@ const PortalFooter = ({ ping }: { ping: number }) => (
     <footer className="bg-gray-800 text-gray-400 text-[9px] p-0 text-center flex-shrink-0 flex justify-between items-center px-4 z-20">
         <span>© 2025 National Bed Occupancy Dashboard. V1.0.0 - {PORTAL_TITLE}</span>
         <div className="flex items-center gap-4">
-            <span className={`${ping > 500 ? 'text-red-400 animate-pulse' : 'text-green-400'} font-semibold`}>Ping: {ping} ms</span>
+            {/* R-STRATEGIC-UX: Ping Color Logic. If > 100ms, it shows RED to match the lag. */}
+            <span className={`${ping > 100 ? 'text-red-500 animate-pulse font-bold' : 'text-green-400'} font-semibold`}>Ping: {ping} ms</span>
             <span>Session IP: 103.48.198.141</span>
         </div>
     </footer>
@@ -420,21 +421,47 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     const [mciRegion, setMciRegion] = useState<string>('None');
     const [mciConfirmText, setMciConfirmText] = useState('');
     const [showCriticalModal, setShowCriticalModal] = useState(false);
-    const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
+    // REMOVED LOCAL STATE for lastUpdated
     const [toast, setToast] = useState<{message: string | null, type: string | null}>({message: null, type: null});
     const [isFeedActive, setIsFeedActive] = useState(true); // R-STRATEGIC-2: New state for feed status
 
     const modalRef = useRef(null);
     const t = useTranslations();
 
-    // R-STRATEGIC-2: Time tracking setup
+    // R-STRATEGIC-2: DERIVED lastUpdated and Time tracking setup
     const lastFeedTime = useRef(Date.now());
-    useEffect(() => {
-        // Update lastFeedTime whenever liveData updates, which happens every 3 seconds from simulationEngine
-        if(liveData.length > 0) {
-            lastFeedTime.current = Date.now();
+    
+    // Derived value for Last Updated text
+    const lastUpdated = useMemo(() => {
+        if (nationalHistory.length > 0) {
+            const lastEntry = nationalHistory[nationalHistory.length - 1];
+            // Uses the timestamp from the DATA, not the system clock
+            return new Date(lastEntry.date).toLocaleTimeString();
         }
-    }, [liveData]);
+        return new Date().toLocaleTimeString(); 
+    }, [nationalHistory]);
+
+    // Track the time of the last update for the "Green/Red Dot" status
+    // AND Update Ping to sync with data
+    useEffect(() => {
+        if(nationalHistory.length > 0) {
+            const now = Date.now();
+            const timeSinceLastUpdate = now - lastFeedTime.current;
+            
+            // R-STRATEGIC-UX: "Fork in the Road" Logic
+            // If the delay was > 3.8s (red zone), simulate High Ping.
+            // If the delay was < 3.8s (green zone), simulate Low Ping.
+            if (timeSinceLastUpdate > 3800) {
+                 // High Ping: 200ms - 500ms
+                 setPing(Math.round(200 + Math.random() * 300));
+            } else {
+                 // Low Ping: 30ms - 80ms
+                 setPing(Math.round(30 + Math.random() * 50));
+            }
+
+            lastFeedTime.current = now;
+        }
+    }, [nationalHistory]);
 
 
     // FIX: Function declaration wrapped in useCallback to resolve TS7006/TS7031 on parameter typing
@@ -452,24 +479,21 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     };
 
     useEffect(() => {
-        let pingInterval: NodeJS.Timeout;
         let timeInterval: NodeJS.Timeout;
 
-        pingInterval = setInterval(() => setPing(80 + Math.random() * 50), 8000);
-
         // R-STRATEGIC-2: Update UI time and check for feed activity
+        // FIXED: Interval reduced to 200ms to catch ALL delays > 3.8s
         timeInterval = setInterval(() => {
-            setLastUpdated(new Date().toLocaleTimeString());
-            // If the time since the last data update exceeds the simulation interval (3000ms) + buffer (1000ms)
-            if (Date.now() - lastFeedTime.current > 4000) {
+            // Checks if data is "stale" (no update for > 3800ms)
+            // UPDATED: Threshold set to 3.8 seconds as discussed for sync
+            if (Date.now() - lastFeedTime.current > 3800) {
                  setIsFeedActive(false);
             } else {
                  setIsFeedActive(true);
             }
-        }, 1000);
+        }, 200);
 
         return () => {
-            clearInterval(pingInterval);
             clearInterval(timeInterval);
         };
     }, []);

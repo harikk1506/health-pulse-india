@@ -843,6 +843,8 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
     const [isLoading, setIsLoading] = useState(true);
     const [_dataQuality, setDataQuality] = useState(98.7);
     const [syncStatus, setSyncStatus] = useState({ color: 'text-green-400', text: 'Live Feed Established' });
+    const [ping, setPing] = useState(45);
+    const [isStabilizing, setIsStabilizing] = useState(false); // NEW: State to track "Yellow" phase
 
     const [lastCriticalUpdate, setLastCriticalUpdate] = useState(Date.now());
     const [activityFeed, setActivityFeed] = useState<string[]>([]);
@@ -877,13 +879,27 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
     useEffect(() => {
         const SYNC_INTERVAL = 15000;
         const CONNECTING_DURATION = 3000;
+        const RECOVERY_DURATION = 1500; // 1.5s Decompression Phase
 
         const syncLoop = setInterval(() => {
+            // PHASE 1: Panic / Connecting
             setSyncStatus({ color: 'text-yellow-400', text: 'Connecting to National Grid...' });
+            setIsStabilizing(false);
+            setPing(Math.floor(Math.random() * (320 - 250 + 1)) + 250); // RED (250-320ms)
 
             setTimeout(() => {
+                // PHASE 2: Connection Restored, but Stabilizing (Lingering Yellow)
                 setSyncStatus({ color: 'text-green-400', text: 'Live Feed Established' });
                 setDataQuality(98 + (Math.random() * 2));
+                setIsStabilizing(true); // Enable Decompression Phase
+                setPing(Math.floor(Math.random() * (180 - 120 + 1)) + 120); // YELLOW (120-180ms)
+
+                setTimeout(() => {
+                    // PHASE 3: Fully Stable (Green)
+                    setIsStabilizing(false);
+                    setPing(Math.floor(Math.random() * (65 - 35 + 1)) + 35); // GREEN (35-65ms)
+                }, RECOVERY_DURATION);
+
             }, CONNECTING_DURATION);
 
         }, SYNC_INTERVAL);
@@ -892,6 +908,25 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
 
         return () => clearInterval(syncLoop);
     }, []);
+
+    // NEW: Breathing Effect that respects all 3 phases
+    useEffect(() => {
+        const pingInterval = setInterval(() => {
+            if (syncStatus.text.includes('Connecting')) {
+                // Panic Mode: 250 - 320ms (Red)
+                 setPing(Math.floor(Math.random() * (320 - 250 + 1)) + 250);
+            } else if (isStabilizing) {
+                // Recovery Mode: 120 - 180ms (Yellow)
+                 setPing(Math.floor(Math.random() * (180 - 120 + 1)) + 120);
+            } else {
+                // Breathing Mode: 35 - 65ms (Green)
+                 setPing(Math.floor(Math.random() * (65 - 35 + 1)) + 35);
+            }
+        }, 2000); // 2 seconds gentle update
+
+        return () => clearInterval(pingInterval);
+    }, [syncStatus.text, isStabilizing]);
+
 
     const addActivityFeedEntry = useCallback((message: string, type: string) => {
         const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -1019,7 +1054,7 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
             <footer className="bg-gray-800 text-gray-400 text-[10px] p-1 text-center flex-shrink-0 flex justify-between items-center px-4">
                 <span>© 2025 National Bed Occupancy Dashboard. V1.0.0 - Hospital Hub</span>
                 <div className="flex items-center gap-4">
-                    <span className='text-green-400 font-semibold'>Ping: 85 ms (Aligned)</span>
+                    <span className={`${ping > 200 ? 'text-red-500 animate-pulse font-bold' : ping > 100 ? 'text-yellow-400' : 'text-green-400'} font-semibold`}>Ping: {ping} ms</span>
                     <span>Session IP: 14.102.45.68</span>
                 </div>
             </footer>
@@ -1075,7 +1110,7 @@ const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: {
             <footer className="bg-gray-800 text-gray-400 text-[10px] p-1 text-center flex-shrink-0 flex justify-between items-center px-4">
                 <span>© 2025 National Bed Occupancy Dashboard. V1.0.0</span>
                 <div className="flex items-center gap-4">
-                    <span className='text-green-400 font-semibold'>Ping: 85 ms (Aligned)</span>
+                    <span className='text-green-400 font-semibold'>Ping: 45 ms</span>
                     <span>Session IP: 14.102.45.68</span>
                 </div>
             </footer>
