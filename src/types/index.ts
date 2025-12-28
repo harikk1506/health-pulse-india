@@ -62,6 +62,8 @@ export interface Filters {
   hasICU: boolean;
   isOpen247: boolean;
   goodPPE: boolean;
+  nearby: boolean;      
+  minRating: number;    
 }
 
 export interface HistoricalStat {

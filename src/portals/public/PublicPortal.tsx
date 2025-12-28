@@ -13,7 +13,7 @@ import { PortalFooterPublic } from './components/PortalFooterPublic';
 import { RecommendationModal } from './components/RecommendationModal';
 import { HospitalDetailView } from './components/HospitalDetailView';
 
-const PublicPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePortal: Portal, setActivePortal: (p: Portal) => void, onGoToIntro: () => void }) => {
+const PublicPortal = ({ activePortal: _activePortal, setActivePortal: _setActivePortal, onGoToIntro }: { activePortal: Portal, setActivePortal: (p: Portal) => void, onGoToIntro: () => void }) => {
   const { location: userLocation } = useGeolocation('public');
   const { liveData, mciState } = useContext(GlobalContext);
   const [selectedHospital, setSelectedHospital] = useState<LiveHospitalData | null>(null);

@@ -141,7 +141,7 @@ const PortalFooter = ({ trafficMultiplier }: {trafficMultiplier: number}) => {
 
     // UPDATED: Random timer between 10s and 20s
     useEffect(() => {
-        let timeoutId: number;
+        let timeoutId: any; // <-- CHANGED from 'number' to 'any' (Fixes TS2322)
 
         const updateTime = () => {
             setDateTime(new Date());
