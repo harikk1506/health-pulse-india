@@ -1,6 +1,6 @@
 // src/portals/public/components/FilterBar.tsx
 import { FaSearch, FaMapMarkerAlt, FaProcedures, FaCompass, FaLandmark, FaBuilding, FaTimes, FaUndo } from 'react-icons/fa';
-import { Filters } from '../../../../types';
+import { Filters } from '../../../types';
 
 interface FilterBarProps {
     filters: Filters;
