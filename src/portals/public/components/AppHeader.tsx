@@ -1,5 +1,6 @@
 // src/portals/public/components/AppHeader.tsx
 import { FaSignOutAlt, FaRoute } from 'react-icons/fa';
+import logo from '../../../assets/logo.svg';
 
 interface AppHeaderProps {
     onRecommendClick: () => void;
