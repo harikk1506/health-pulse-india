@@ -23,7 +23,8 @@ export const AppHeader = ({ onRecommendClick, onGoToIntro, onReset }: AppHeaderP
                     onClick={onReset}
                     title="Reset to Home"
                 >
-                    <img src="/src/assets/logo.svg" alt="Emblem" className="h-10 w-10 drop-shadow-sm" />
+                    {/* FIX: Use the imported logo variable here */}
+                    <img src={logo} alt="Emblem" className="h-10 w-10 drop-shadow-sm" />
                     <div className="flex flex-col justify-center">
                         <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 uppercase leading-none tracking-tight transition-colors">
                             National Bed Occupancy Dashboard
