@@ -123,7 +123,6 @@ const HospitalSidebar = ({ setIsAuthenticated, activeMenu, setActiveMenu, isColl
                         <div className='bg-gray-800 rounded-lg p-3 text-center'>
                              <p className='text-xs font-bold text-gray-400'>Live Sync Status</p>
                              <p className={`text-sm font-semibold flex items-center justify-center gap-2 ${syncStatus.color}`}><FaLink /> {syncStatus.text}</p>
-                             <p className='text-[10px] text-gray-500'>Last Update: {new Date().toLocaleTimeString()}</p>
                         </div>
                     </div>
                 )}
@@ -1027,9 +1026,9 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
         <div className="flex flex-col h-screen bg-slate-100 font-sans overflow-hidden">
             <HospitalAppHeader selectedHospital={selectedHospital} activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
 
-            <div className="flex flex-grow overflow-hidden">
-                <HospitalSidebar setIsAuthenticated={handleLogout} activeMenu={activeMenu} setActiveMenu={setActiveMenu} isCollapsed={isSidebarCollapsed} syncStatus={syncStatus} />
-                <div className="flex flex-grow flex-col">
+            <div className={`flex flex-grow overflow-hidden transition-all duration-300 ${historyMetric ? 'blur-sm grayscale opacity-50' : ''}`}>
+    <HospitalSidebar setIsAuthenticated={handleLogout} activeMenu={activeMenu} setActiveMenu={setActiveMenu} isCollapsed={isSidebarCollapsed} syncStatus={syncStatus} />
+    <div className="flex flex-grow flex-col">
                     <main className={`flex-grow p-3 bg-gray-200 ${activeMenu === 'Dashboard' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
                         {mciState.isActive && mciState.region === selectedHospital.region && (
                             <div className='bg-red-500 text-white font-bold text-center py-2 text-sm rounded-lg mb-4 animate-pulse flex items-center justify-center gap-2'>

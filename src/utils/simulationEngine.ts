@@ -4,7 +4,8 @@ import type { Hospital, LiveHospitalData, MciState, NodalConfig, HistoricalStat 
 import originalHospitalData from '../data/hospitals.json';
 
 // --- HYPER-DYNAMIC CONFIGURATION ---
-const MAX_BED_CHANGE_PER_HOUR = 3.5;
+// VERDICT: Kept at 4.0 to maintain "Live Pulse" feel for National Overview
+const MAX_BED_CHANGE_PER_HOUR = 4.0;
 const MAX_FATIGUE_CHANGE = 1.5;
 const MAX_SATISFACTION_CHANGE = 2.0;
 const PPE_LEVELS: Hospital['ppe_stock_level'][] = ['Good', 'Low', 'Critical', 'Stockout'];
@@ -18,21 +19,36 @@ let subscribers: ((data: { liveData: LiveHospitalData[], history: HistoricalStat
 let isInitialized = false;
 let dynamicHighStrainIds: number[] = []; 
 
+// Cache hospital IDs by sector for efficient random selection
+const publicHospitalIds = originalHospitalData
+    .filter(h => h.type.toLowerCase().includes('government'))
+    .map(h => h.id);
+
+const privateHospitalIds = originalHospitalData
+    .filter(h => !h.type.toLowerCase().includes('government'))
+    .map(h => h.id);
+
 // --- SIMULATION LOGIC ---
 
 const initializeSimulation = (hospital: Hospital): LiveHospitalData => {
+    const isPublic = hospital.type.toLowerCase().includes('government');
+    
+    // Initial Setup: Set to the new "Resting Baselines"
+    // Public: ~65% | Private: ~55%
     let baseOccupancy;
     if (hospital.id === 150) {
         baseOccupancy = 75;
-    } else if (hospital.type.toLowerCase().includes('government')) {
-        baseOccupancy = 68 + (Math.random() * 12);
+    } else if (isPublic) {
+        baseOccupancy = 65 + (Math.random() * 6 - 3); 
     } else {
-        baseOccupancy = 55 + (Math.random() * 10);
+        baseOccupancy = 55 + (Math.random() * 6 - 3); 
     }
     baseOccupancy = Math.min(baseOccupancy, 96);
 
     const occupiedBeds = (baseOccupancy / 100) * hospital.totalBeds;
     const bedOccupancy = (occupiedBeds / hospital.totalBeds) * 100;
+    
+    // Initialize ICU near General Occupancy
     const icuBaseOccupancy = bedOccupancy + (Math.random() * 10 - 5);
     const occupiedICUBeds = (icuBaseOccupancy / 100) * hospital.totalICU;
     const icuBedOccupancy = hospital.totalICU > 0 ? (occupiedICUBeds / hospital.totalICU) * 100 : 0;
@@ -64,6 +80,7 @@ const initializeSimulation = (hospital: Hospital): LiveHospitalData => {
 
 const updateLiveMetrics = (hospital: LiveHospitalData): LiveHospitalData => {
     let { totalBeds, totalICU, oxygen_supply_days, ppe_stock_level } = hospital;
+    
     if (nodalConfigOverride && hospital.id === nodalConfigOverride.hospitalId && Date.now() < nodalConfigOverride.activeUntil) {
         totalBeds = nodalConfigOverride.totalBeds;
         totalICU = nodalConfigOverride.totalICU;
@@ -74,43 +91,87 @@ const updateLiveMetrics = (hospital: LiveHospitalData): LiveHospitalData => {
     const baseDischargeRate = (hospital.occupiedBeds / dynamicALOS) / 24;
     const baseAdmissionRate = (hospital.EDThroughput_perDay / 24) * 0.24;
     
-    // FIX (VOLATILITY): Increased base shock from 9.0 to 10.0
-    const randomShock = dynamicHighStrainIds.includes(hospital.id) ? 9.0 : 10.0; 
+    // --- 1. SHOCK LOGIC ---
+    const isHighStrain = dynamicHighStrainIds.includes(hospital.id);
+    const randomShock = isHighStrain ? 10.0 : 9.0; 
     let netBedChangeRaw = baseDischargeRate - baseAdmissionRate + ((Math.random() - 0.5) * randomShock);
 
     const isInMciRegion = mciState.isActive && mciState.region === hospital.region;
-    if (isInMciRegion) netBedChangeRaw -= 3;
+    if (isInMciRegion) netBedChangeRaw -= 3; 
 
     let netBedChange = Math.min(Math.abs(netBedChangeRaw), MAX_BED_CHANGE_PER_HOUR) * Math.sign(netBedChangeRaw);
     let occupiedBeds = Math.max(5, Math.min(totalBeds, hospital.occupiedBeds - netBedChange));
 
-    let baselineOccupancy = 60;
-    if (hospital.id === 150) baselineOccupancy = 75;
-    else if (dynamicHighStrainIds.includes(hospital.id)) baselineOccupancy = 88;
-    else if (hospital.type.toLowerCase().includes('government')) baselineOccupancy = 72;
+    // --- 2. BASELINE & TARGET LOGIC (Rubber Band Logic) ---
+    const isPublic = hospital.type.toLowerCase().includes('government');
+    let baselineOccupancy;
+
+    if (hospital.id === 150) {
+        baselineOccupancy = 75; 
+    } else if (isPublic) {
+        // Public: High Target -> 93% (Hit Red Zone) | Resting -> 65% (Avg ~72%)
+        baselineOccupancy = isHighStrain ? 93 : 65;
+    } else {
+        // Private: High Target -> 89% (Hit Red Zone) | Resting -> 55% (Avg ~62%)
+        baselineOccupancy = isHighStrain ? 89 : 55;
+    }
     
+    // --- 3. DRIFT MECHANICS (The "Rubber Band") ---
     const currentOccupancy = (occupiedBeds / totalBeds) * 100;
-    const drift = (baselineOccupancy - currentOccupancy) * 0.4;
+    let driftFactor;
+
+    if (isHighStrain) {
+        // CLIMB: Fast (0.4) to snap to attention - Matches your preference for visual speed
+        driftFactor = 0.4; 
+    } else if (currentOccupancy > baselineOccupancy) {
+        // RELEASE: Gentle but efficient (0.12)
+        driftFactor = 0.12; 
+    } else {
+        // RECOVERY: Standard fill (0.1)
+        driftFactor = 0.1;
+    }
+
+    const drift = (baselineOccupancy - currentOccupancy) * driftFactor;
     occupiedBeds += (drift / 100) * totalBeds;
     occupiedBeds = Math.max(5, Math.min(totalBeds, occupiedBeds));
 
+    // --- ICU LOGIC (FIXED: Added Target Logic to prevent "Freeing Up") ---
     let occupiedICUBeds = hospital.occupiedICUBeds;
+    let icuBaseline;
+    
+    if (hospital.id === 150) {
+        // SPECIAL STATUS: Force ID 150 to hold steady at ~74%
+        icuBaseline = 74; 
+    } else {
+        // OTHERS: ICU roughly mimics General Ward strain + a little variance
+        // This ensures ICU numbers dance "in tandem" with general beds but aren't robotic
+        icuBaseline = (occupiedBeds / totalBeds) * 100 + (Math.random() * 10 - 5);
+    }
+    
+    // Calculate Drift for ICU (Weaker than General Beds: 0.1 strength)
+    // This creates "Correlated Chaos" - connected, but not identical
+    const currentIcuOccupancy = totalICU > 0 ? (occupiedICUBeds / totalICU) * 100 : 0;
+    const icuDrift = (icuBaseline - currentIcuOccupancy) * 0.1;
+    occupiedICUBeds += (icuDrift / 100) * totalICU;
+
+    // Add Standard Random Jitter
     if (Math.random() < 0.12 * (isInMciRegion ? 1.5 : 1)) occupiedICUBeds++;
     if (Math.random() < 0.12) occupiedICUBeds--;
     occupiedICUBeds = Math.max(0, Math.min(totalICU, occupiedICUBeds));
 
+    // --- FATIGUE & SATISFACTION ---
     const occupancyStrain = (occupiedBeds / totalBeds);
     let staffFatigue_score, patientSatisfaction_pct, currentWaitTime;
 
     if (hospital.id === 150) {
-        const FATIGUE_TARGET = 70.0, SATISFACTION_TARGET = 68.0, WAIT_TIME_TARGET = 120.0;
+        // Anchor Hospital logic
+        const FATIGUE_TARGET = 70.0, SATISFACTION_TARGET = 68.0;
         let fatigueChange = ((occupancyStrain - 0.8) * 1.8) + ((FATIGUE_TARGET - hospital.staffFatigue_score) * 0.1) + (Math.random() - 0.5) * 1.0; 
         staffFatigue_score = hospital.staffFatigue_score + Math.max(-MAX_FATIGUE_CHANGE, Math.min(MAX_FATIGUE_CHANGE, fatigueChange));
         
-        let baseWaitTime = hospital.avgWaitTime_mins * (1 + (staffFatigue_score / 100) * 0.15) * (occupancyStrain > 0.8 ? 1 + (occupancyStrain - 0.8) * 2 : 1);
-        currentWaitTime = baseWaitTime + (WAIT_TIME_TARGET - baseWaitTime) * 0.1;
+        currentWaitTime = 131.0 + (Math.random() - 0.5) * 3.0;
         
-        let satisfactionChange = ((SATISFACTION_TARGET - hospital.patientSatisfaction_pct) * 0.1) - ((currentWaitTime / WAIT_TIME_TARGET - 1) * 4) + (Math.random() - 0.5);
+        let satisfactionChange = ((SATISFACTION_TARGET - hospital.patientSatisfaction_pct) * 0.1) - ((currentWaitTime / 131.0 - 1) * 2.0) + (Math.random() - 0.5);
         patientSatisfaction_pct = hospital.patientSatisfaction_pct + Math.max(-MAX_SATISFACTION_CHANGE, Math.min(MAX_SATISFACTION_CHANGE, satisfactionChange));
     } else {
         const FATIGUE_RECOVERY_TARGET = 61;
@@ -168,16 +229,23 @@ const generateInitialHistory = () => {
     }));
 };
 
-
 // --- ENGINE CONTROLS ---
 
 const tick = () => {
-    const eligibleHospitals = originalHospitalData.filter(h => h.type.toLowerCase().includes('government (state)'));
-    const shuffled = [...eligibleHospitals].sort(() => 0.5 - Math.random());
-    dynamicHighStrainIds = shuffled.slice(0, 13 + Math.floor(Math.random()*2)).map(h => h.id);
+    // --- 1. SELECTION LOGIC (15 Hospitals: 6 Public / 9 Private) ---
+    const shuffledPublic = [...publicHospitalIds].sort(() => 0.5 - Math.random());
+    const selectedPublic = shuffledPublic.slice(0, 6);
 
+    const shuffledPrivate = [...privateHospitalIds].sort(() => 0.5 - Math.random());
+    const selectedPrivate = shuffledPrivate.slice(0, 9);
+
+    // Update global state
+    dynamicHighStrainIds = [...selectedPublic, ...selectedPrivate];
+
+    // --- 2. UPDATE METRICS ---
     strategicLiveData = strategicLiveData.map(h => updateLiveMetrics(h));
 
+    // --- 3. AGGREGATE & HISTORY ---
     const totalBeds = strategicLiveData.reduce((acc, h) => acc + h.totalBeds, 0);
     const occupiedBeds = strategicLiveData.reduce((acc, h) => acc + h.occupiedBeds, 0);
     
@@ -203,12 +271,9 @@ const tick = () => {
     
     subscribers.forEach(callback => callback({ liveData: strategicLiveData, history: nationalHistory }));
 
-    // --- RECURSIVE VARIABLE TIMER START ---
-    // Calculates a random delay between 2000ms and 5000ms
-    // Occasional 'lag spikes' up to 6000ms will cause the UI to turn RED briefly
+    // --- 4. RECURSIVE TIMER ---
     const randomDelay = Math.floor(Math.random() * 3000) + 2000; 
     setTimeout(tick, randomDelay);
-    // --- RECURSIVE VARIABLE TIMER END ---
 };
 
 const start = () => {
@@ -216,13 +281,17 @@ const start = () => {
     
     setTimeout(() => {
         nationalHistory = generateInitialHistory();
+        
+        // Quick burn-in to stabilize history data
         for(let i = 0; i < 30; i++){
-            // We run a few ticks instantly to fill initial history
-            const eligibleHospitals = originalHospitalData.filter(h => h.type.toLowerCase().includes('government (state)'));
-            const shuffled = [...eligibleHospitals].sort(() => 0.5 - Math.random());
-            dynamicHighStrainIds = shuffled.slice(0, 13 + Math.floor(Math.random()*2)).map(h => h.id);
+            const shuffledPublic = [...publicHospitalIds].sort(() => 0.5 - Math.random());
+            const selectedPublic = shuffledPublic.slice(0, 6);
+            const shuffledPrivate = [...privateHospitalIds].sort(() => 0.5 - Math.random());
+            const selectedPrivate = shuffledPrivate.slice(0, 9);
+            dynamicHighStrainIds = [...selectedPublic, ...selectedPrivate];
+
             strategicLiveData = strategicLiveData.map(h => updateLiveMetrics(h));
-            // (Simulating history filling without full tick overhead)
+            
             const totalBeds = strategicLiveData.reduce((acc, h) => acc + h.totalBeds, 0);
             const occupiedBeds = strategicLiveData.reduce((acc, h) => acc + h.occupiedBeds, 0);
             const regionalOccupancy: Record<string, number> = {};
@@ -247,7 +316,6 @@ const start = () => {
         isInitialized = true;
         subscribers.forEach(callback => callback({ liveData: strategicLiveData, history: nationalHistory }));
         
-        // Start the recursive variable loop
         tick();
     }, 0);
 };

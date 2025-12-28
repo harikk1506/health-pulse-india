@@ -1,106 +1,110 @@
-import { useState, useRef, useEffect } from 'react';
-import { FaFilter, FaRedo, FaSort, FaChevronUp, FaChevronDown, FaSearch, FaTimes } from 'react-icons/fa';
-import { CSSTransition } from 'react-transition-group';
-import { useTranslations } from '../../../hooks/useTranslations';
-import type { Filters, SortKey } from '../../../types';
+// src/portals/public/components/FilterBar.tsx
+import { FaSearch, FaMapMarkerAlt, FaProcedures, FaCompass, FaLandmark, FaBuilding, FaTimes, FaUndo } from 'react-icons/fa';
+import type { Filters } from '../../../../types';
 
-// FIX: Update type signature to allow null for useRef(null) initialization
-const useOutsideClick = (ref: React.RefObject<HTMLDivElement | null>, callback: () => void) => {
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (ref.current && !ref.current.contains(event.target as Node)) {
-                callback();
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [ref, callback]);
-};
+interface FilterBarProps {
+    filters: Filters;
+    setFilters: (f: Filters) => void;
+    onReset: () => void;
+}
 
-export const FilterBar = ({ filters, setFilters, sortKey, setSortKey, sortDirection, setSortDirection }:
-    { filters: Filters; setFilters: React.Dispatch<React.SetStateAction<Filters>>, sortKey: SortKey, setSortKey: (sk: SortKey) => void, sortDirection: 'asc' | 'desc', setSortDirection: React.Dispatch<React.SetStateAction<'asc' | 'desc'>> }) => {
-    const t = useTranslations();
-    const [isFilterOpen, setFilterOpen] = useState(false);
-    const [isSortOpen, setSortOpen] = useState(false);
-    const filterContainerRef = useRef<HTMLDivElement>(null);
-    const sortContainerRef = useRef<HTMLDivElement>(null);
-
-    useOutsideClick(filterContainerRef, () => setFilterOpen(false));
-    useOutsideClick(sortContainerRef, () => setSortOpen(false));
-
-    const handleClear = () => { setFilters({ searchTerm: '', types: [], hasICU: false, isOpen247: false, goodPPE: false }); setSortKey('distance'); setSortDirection('asc'); };
-    const toggleType = (type: string) => setFilters(p => ({ ...p, types: p.types.includes(type) ? p.types.filter(t => t !== type) : [...p.types, type] }));
-
-    const activeFilterCount = filters.types.length + (filters.hasICU ? 1 : 0) + (filters.isOpen247 ? 1 : 0) + (filters.goodPPE ? 1 : 0);
+export const FilterBar = ({ filters, setFilters, onReset }: FilterBarProps) => {
     
-    const handleSort = (key: SortKey) => {
-        if (sortKey === key) {
-            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortKey(key);
-            setSortDirection('asc');
-        }
+    const toggleType = (type: string) => {
+        const newTypes = filters.types.includes(type)
+            ? filters.types.filter(t => t !== type)
+            : [...filters.types, type];
+        setFilters({ ...filters, types: newTypes });
     };
 
-    const SortIcon = sortDirection === 'asc' ? FaChevronUp : FaChevronDown;
-    
+    const clearSearch = () => {
+        setFilters({ ...filters, searchTerm: '' });
+    };
+
     return (
-        <div className="p-2 bg-white border-b border-slate-200 flex-shrink-0 z-30 sticky top-0">
-            <div className="flex items-center justify-between">
-                <div className={`relative flex items-center transition-shadow duration-300 rounded-lg shadow-md ring-2 ring-black`} style={{ width: '50%' }}>
-                    <FaSearch className="absolute left-3 text-gray-500" />
-                    <input
-                        type="text"
-                        placeholder={t('public.search.placeholder')}
-                        value={filters.searchTerm}
-                        onChange={e => setFilters(p => ({ ...p, searchTerm: e.target.value }))}
-                        className={`p-1.5 pl-10 border-none rounded-lg focus:ring-0 w-full`}
-                    />
-                    {filters.searchTerm && (
-                        <button onClick={() => setFilters(p => ({...p, searchTerm: ''}))} className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 hover:text-gray-800">
-                            <FaTimes/>
-                        </button>
-                    )}
+        <div className="sticky top-0 z-30 bg-slate-50/95 backdrop-blur-sm border-b border-slate-200 py-2 px-4 shadow-sm">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+                
+                {/* LEFT SIDE: SEARCH + CONTROL ZONE */}
+                <div className="flex w-full md:w-auto items-center">
+                    
+                    {/* 1. GOOGLE MAPS STYLE SEARCH */}
+                    <div className="relative flex-grow md:w-72 shadow-sm rounded-full bg-white border border-slate-300 focus-within:ring-2 focus-within:ring-blue-500 transition-all flex items-center h-9 overflow-hidden">
+                        <div className="pl-3 pr-2 text-slate-400">
+                            <FaSearch className="text-xs" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search hospitals..."
+                            className="flex-grow bg-transparent text-slate-700 placeholder-slate-400 focus:outline-none text-xs font-medium h-full"
+                            value={filters.searchTerm}
+                            onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
+                        />
+                        
+                        {/* 'X' Clear Button */}
+                        {filters.searchTerm && (
+                            <button onClick={clearSearch} className="p-2 text-slate-400 hover:text-slate-600">
+                                <FaTimes className="text-xs" />
+                            </button>
+                        )}
+
+                        <div className="flex items-center gap-1.5 pr-3 border-l border-slate-100 pl-3 h-full bg-slate-50/50">
+                            <FaMapMarkerAlt className="text-red-500 text-[10px]" />
+                            <span className="text-[10px] font-bold text-slate-600">Theni</span>
+                        </div>
+                    </div>
+
+                    {/* 2. RESET BUTTON (Ghost Pill Style with Spacing) */}
+                    {/* ml-6 adds the spacing to align with "D" in Dashboard above */}
+                    <button 
+                        onClick={onReset}
+                        className="flex-shrink-0 flex items-center gap-1.5 px-3 h-9 ml-6 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors border border-transparent hover:border-slate-300 cursor-pointer"
+                        title="Reset Filters & Rewind to Top"
+                    >
+                        <FaUndo className="text-xs" />
+                        <span className="text-xs font-bold hidden sm:inline">Reset</span>
+                    </button>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div ref={filterContainerRef} className='relative z-40'>
-                        <button onClick={() => setFilterOpen(p => !p)} className="flex items-center gap-2 p-2 rounded-lg bg-gray-100 hover:bg-blue-100"> <FaFilter className='text-blue-600'/> {activeFilterCount > 0 && <span className='text-xs font-bold bg-blue-600 text-white rounded-full px-2 py-0.5'>{activeFilterCount}</span>} </button>
-                        <CSSTransition nodeRef={filterContainerRef} in={isFilterOpen} timeout={200} classNames="dropdown" unmountOnExit>
-                           <div className="absolute right-0 top-12 bg-white p-4 rounded-lg shadow-xl border z-40 w-72">
-                                <h4 className='font-bold mb-2'>{t('filter.by')}</h4>
-                                <div className='grid grid-cols-2 gap-2 text-sm'>
-                                    <label className='flex items-center gap-2'><input type='checkbox' checked={filters.hasICU} onChange={() => setFilters(p => ({ ...p, hasICU: !p.hasICU }))}/>{t('filter.icu.available')}</label>
-                                    <label className='flex items-center gap-2'><input type='checkbox' checked={filters.isOpen247} onChange={() => setFilters(p => ({ ...p, isOpen247: !p.isOpen247 }))}/>{t('filter.open.247')}</label>
-                                    <label className='flex items-center gap-2'><input type='checkbox' checked={filters.goodPPE} onChange={() => setFilters(p => ({ ...p, goodPPE: !p.goodPPE }))}/>{t('filter.good.ppe')}</label>
-                                </div>
-                                <hr className='my-2'/>
-                                <p className='font-semibold text-sm mb-1'>{t('filter.type.title')}</p>
-                                <div className='flex gap-2'>
-                                    <label className='flex-1 text-center p-2 border rounded-md has-[:checked]:bg-blue-100 has-[:checked]:border-blue-500'><input type='checkbox' className='hidden' checked={filters.types.includes('Government')} onChange={() => toggleType('Government')}/>{t('filter.type.gov')}</label>
-                                    <label className='flex-1 text-center p-2 border rounded-md has-[:checked]:bg-blue-100 has-[:checked]:border-blue-500'><input type='checkbox' className='hidden' checked={filters.types.includes('Private')} onChange={() => toggleType('Private')}/>{t('filter.type.private')}</label>
-                                </div>
-                           </div>
-                        </CSSTransition>
-                    </div>
-                     <div ref={sortContainerRef} className='relative z-40'>
-                        <button onClick={() => setSortOpen(p => !p)} className="p-2 rounded-lg bg-gray-100 hover:bg-blue-100"><FaSort className='text-blue-600'/></button>
-                         <CSSTransition nodeRef={sortContainerRef} in={isSortOpen} timeout={200} classNames="dropdown" unmountOnExit>
-                             <div className="absolute right-0 top-12 bg-white p-2 rounded-lg shadow-xl border z-40 w-56">
-                                 <h4 className='font-bold p-2'>{t('sort.by')}</h4>
-                                 <button onClick={() => handleSort('distance')} className={`w-full text-left p-2 rounded flex justify-between items-center ${sortKey === 'distance' && 'bg-blue-100'}`}>{t('sort.distance')} {sortKey === 'distance' && <SortIcon size={12}/>}</button>
-                                 <button onClick={() => handleSort('availableBeds')} className={`w-full text-left p-2 rounded flex justify-between items-center ${sortKey === 'availableBeds' && 'bg-blue-100'}`}>{t('sort.beds')} {sortKey === 'availableBeds' && (sortDirection === 'desc' ? <FaChevronDown size={12}/> : <FaChevronUp size={12}/>)}</button>
-                                 <button onClick={() => handleSort('availableICUBeds')} className={`w-full text-left p-2 rounded flex justify-between items-center ${sortKey === 'availableICUBeds' && 'bg-blue-100'}`}>{t('sort.icu')} {sortKey === 'availableICUBeds' && (sortDirection === 'desc' ? <FaChevronDown size={12}/> : <FaChevronUp size={12}/>)}</button>
-                                 <button onClick={() => handleSort('googleRating')} className={`w-full text-left p-2 rounded flex justify-between items-center ${sortKey === 'googleRating' && 'bg-blue-100'}`}>{t('sort.rating')} {sortKey === 'googleRating' && (sortDirection === 'desc' ? <FaChevronDown size={12}/> : <FaChevronUp size={12}/>)}</button>
-                                 <button onClick={() => handleSort('currentWaitTime')} className={`w-full text-left p-2 rounded flex justify-between items-center ${sortKey === 'currentWaitTime' && 'bg-blue-100'}`}>{t('sort.wait.time')} {sortKey === 'currentWaitTime' && <SortIcon size={12}/>}</button>
-                                 <button onClick={() => handleSort('minConsultCharge')} className={`w-full text-left p-2 rounded flex justify-between items-center ${sortKey === 'minConsultCharge' && 'bg-blue-100'}`}>{t('sort.fee')} {sortKey === 'minConsultCharge' && <SortIcon size={12}/>}</button>
-                             </div>
-                         </CSSTransition>
-                    </div>
-                    <button onClick={handleClear} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200"><FaRedo className='text-red-500'/></button>
+
+                {/* 3. FILTER PILLS (Right Side) */}
+                <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto scrollbar-hide pt-2 md:pt-0">
+                    <button 
+                        onClick={() => setFilters({...filters, nearby: !filters.nearby})}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-wide whitespace-nowrap transition-all ${
+                            filters.nearby ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                        }`}
+                    >
+                        <FaCompass /> Nearby
+                    </button>
+
+                    <button 
+                        onClick={() => setFilters({...filters, hasICU: !filters.hasICU})}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-wide whitespace-nowrap transition-all ${
+                            filters.hasICU ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                        }`}
+                    >
+                        <FaProcedures /> ICU Available
+                    </button>
+
+                    <button 
+                        onClick={() => toggleType('Government')}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-wide whitespace-nowrap transition-all ${
+                            filters.types.includes('Government') ? 'bg-sky-700 text-white border-sky-700' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                        }`}
+                    >
+                        <FaLandmark /> Govt
+                    </button>
+
+                    <button 
+                        onClick={() => toggleType('Private')}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-wide whitespace-nowrap transition-all ${
+                            filters.types.includes('Private') ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                        }`}
+                    >
+                        <FaBuilding /> Private
+                    </button>
                 </div>
             </div>
         </div>
     );
-}
+};

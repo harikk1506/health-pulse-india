@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useContext, useRef } from 'react';
 import type { LiveHospitalData, Portal } from '../../types';
-import { useGeolocation, getDistance, getMaxTransferDistance, getDynamicETA } from '../../utils/helpers_public';
+import { useGeolocation, getDistance, getMaxTransferDistance } from '../../utils/helpers_public';
 import { FaAmbulance, FaCheckCircle, FaSpinner, FaTimes, FaRoute, FaBell, FaPhone, FaSignOutAlt, FaChevronDown, FaExclamationTriangle, FaTimesCircle, FaMapMarkerAlt, FaHome } from 'react-icons/fa';
 import { GlobalContext } from '../../App';
 import { useTranslations } from '../../hooks/useTranslations';
@@ -13,7 +13,7 @@ const PORTAL_MASTER_TITLE = 'SANKAT MOCHAN';
 const NOTIFICATION_COOLDOWN_MS = 120000; // 2 minutes (120,000 ms)
 const MAX_MISSION_DISTANCE_KM = 75; // Enforce the 'Golden Hour' maximum distance
 
-// NEW: Define a type for ActiveMission including the optional sourceHospitalId for transfers
+// Type Definitions
 type ActiveMission = {
     id: number,
     name: string,
@@ -22,59 +22,54 @@ type ActiveMission = {
     pickupEta?: number,
     pickupDist?: number,
     patientCoords: [number, number],
-    sourceHospitalId?: number // Added field for exclusion logic
+    sourceHospitalId?: number
 } | null;
 
-// NEW: Helper function to generate random coordinates near the ambulance
+// --- HELPERS ---
+
+// Generate random coordinates near the ambulance
 const generateRandomPatientCoordinates = (ambulanceCoords: [number, number]): { coords: [number, number], bearing: string } => {
     const [lat, lon] = ambulanceCoords;
 
-    // Define the bounding box for Theni-Madurai-Dindigul region
-    const minLat = 9.70;
-    const maxLat = 10.40;
-    const minLon = 77.25;
-    const maxLon = 78.20;
+    // Bounding box for Theni-Madurai-Dindigul region
+    const minLat = 9.70; const maxLat = 10.40;
+    const minLon = 77.25; const maxLon = 78.20;
 
-    let newLat, newLon;
-    let distance;
+    let newLat, newLon, distance;
 
-    // Generate coordinates within the bounding box and a realistic distance range
     do {
-        const angle = Math.random() * 2 * Math.PI; // Random angle
-        const radius = (Math.random() * (MAX_MISSION_DISTANCE_KM - 5) + 5) / 111; // Random radius between 5 and 75 km
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = (Math.random() * (MAX_MISSION_DISTANCE_KM - 5) + 5) / 111;
 
         newLat = lat + radius * Math.cos(angle);
         newLon = lon + radius * Math.sin(angle);
-
         distance = getDistance(lat, lon, newLat, newLon);
-
     } while (
         newLat < minLat || newLat > maxLat ||
         newLon < minLon || newLon > maxLon ||
         distance < 5 || distance > MAX_MISSION_DISTANCE_KM
     );
 
-    // Determine a simple bearing for context
     const bearing = (newLat > lat ? "North" : "South") + (newLon > lon ? "East" : "West");
-
     return { coords: [newLat, newLon], bearing };
 };
 
-// NEW: Helper function to assign a tier score (lower score = higher preference/tier)
+// Assign a tier score (lower score = higher preference)
 const getHospitalTier = (hospital: LiveHospitalData): number => {
     const beds = hospital.totalBeds;
     const type = hospital.type;
 
-    if (type.includes('Government (State)') && beds >= 1500) return 1.0; // Tier 1: Major Govt Hospital (e.g., Rajaji)
-    if (type.includes('Private (Large)') && beds >= 1000) return 1.5;     // Tier 1.5: Major Private (e.g., Meenakshi)
-    if (type.includes('Private (Trust)')) return 2.0;                      // Tier 2: Large Trust Hospitals
-    if (type.includes('Private (Mid-size)')) return 2.5;                   // Tier 2.5: Mid-size Private
-    if (type.includes('Government (State)')) return 3.0;                   // Tier 3: Local/Small Govt Hospital (e.g., Theni)
-    if (type.includes('Private (Speciality)')) return 3.5;                 // Tier 3.5: Specialty Hospital (Lowest Preference for Trauma/General Transfer)
+    if (type.includes('Government (State)') && beds >= 1500) return 1.0; 
+    if (type.includes('Private (Large)') && beds >= 1000) return 1.5;     
+    if (type.includes('Private (Trust)')) return 2.0;                      
+    if (type.includes('Private (Mid-size)')) return 2.5;                   
+    if (type.includes('Government (State)')) return 3.0;                   
+    if (type.includes('Private (Speciality)')) return 3.5;                 
 
-    return 4.0; // Default Low Priority
+    return 4.0;
 }
 
+// --- SUB-COMPONENTS ---
 
 const Toast = ({ message, type, onClose }: {message: string | null, type: string | null, onClose: () => void}) => {
     if (!message) return null;
@@ -83,8 +78,6 @@ const Toast = ({ message, type, onClose }: {message: string | null, type: string
     return ( <div className={`fixed bottom-12 left-1/2 -translate-x-1/2 p-4 rounded-lg shadow-2xl z-50 flex items-center gap-3 font-semibold text-white ${colorClass}`}> <Icon size={20} /> {message} <button onClick={onClose} className="ml-4 opacity-75 hover:opacity-100"> <FaTimes size={12} /> </button> </div> );
 };
 
-
-// --- HEADER & FOOTER COMPONENTS (WITH LAYOUT ADJUSTMENTS) ---
 const PortalHeader = ({ activePortal, setActivePortal, onLogout, isLoggedIn, onGoToIntro }: { activePortal: Portal, setActivePortal: (p: Portal) => void, onLogout: () => void, isLoggedIn: boolean, onGoToIntro: () => void }) => {
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const t = useTranslations();
@@ -121,7 +114,8 @@ const PortalHeader = ({ activePortal, setActivePortal, onLogout, isLoggedIn, onG
             </div>
              <div className="w-48 flex-shrink-0 flex justify-end">
                 {isLoggedIn && (
-                    <a href="tel:+91108" className='bg-red-600 text-white font-extrabold flex items-center gap-2 py-2 px-4 rounded-lg shadow-lg control-centre-button'>
+                    // UPDATED: No shadow/glow, solid red for Control Centre
+                    <a href="tel:+91108" className='bg-red-600 text-white font-extrabold flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-red-700 transition-colors'>
                         <FaPhone size={16} /> CONTROL CENTRE
                     </a>
                 )}
@@ -131,12 +125,35 @@ const PortalHeader = ({ activePortal, setActivePortal, onLogout, isLoggedIn, onG
 };
 
 const PortalFooter = ({ trafficMultiplier }: {trafficMultiplier: number}) => {
-    const color = trafficMultiplier > 1.8 ? 'text-red-400' : trafficMultiplier > 1.5 ? 'text-yellow-400' : 'text-green-400';
+    let color = 'text-green-400';
+    let statusText = 'Clear';
+
+    // Strict Ranges
+    if (trafficMultiplier > 1.55) {
+        color = 'text-red-400';
+        statusText = 'Heavy';
+    } else if (trafficMultiplier > 1.35) {
+        color = 'text-yellow-400';
+        statusText = 'Moderate';
+    }
+
     const [dateTime, setDateTime] = useState(new Date());
 
+    // UPDATED: Random timer between 10s and 20s
     useEffect(() => {
-        const timer = setInterval(() => setDateTime(new Date()), 5000); // Update every 5 seconds
-        return () => clearInterval(timer);
+        let timeoutId: number;
+
+        const updateTime = () => {
+            setDateTime(new Date());
+            // Random delay between 10000ms (10s) and 20000ms (20s)
+            const nextUpdate = Math.floor(Math.random() * 10000) + 10000;
+            timeoutId = setTimeout(updateTime, nextUpdate);
+        };
+
+        // Initial call
+        updateTime();
+
+        return () => clearTimeout(timeoutId);
     }, []);
 
     const formattedTime = dateTime.toLocaleTimeString();
@@ -145,7 +162,7 @@ const PortalFooter = ({ trafficMultiplier }: {trafficMultiplier: number}) => {
         <footer className="bg-gray-800 text-gray-400 text-[10px] p-1 text-center flex-shrink-0 flex justify-between items-center px-4">
             <span>© 2025 {PORTAL_MASTER_TITLE}. V1.0.0</span>
             <div className='flex items-center gap-4'>
-                <span className={`font-bold ${color}`}>Live Traffic: {trafficMultiplier.toFixed(2)}x</span>
+                <span className={`font-bold ${color}`}>Live Traffic: {trafficMultiplier.toFixed(2)}x ({statusText})</span>
                 <span className='font-semibold text-white'>Updated: {formattedTime}</span>
             </div>
             <span className='font-semibold text-white'>GOVERNMENT OF INDIA</span>
@@ -198,12 +215,16 @@ const LocationAcquiringScreen = () => {
 };
 
 
+// --- MAIN COMPONENT ---
 const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activePortal: Portal, setActivePortal: (p: Portal) => void, onGoToIntro: () => void }) => {
-    const { liveData, addGroundFeedback, groundFeedback, trafficMultiplier, setAmbulanceAlert, setGroundFeedback: setGlobalGroundFeedback } = useContext(GlobalContext);
+    const { liveData, addGroundFeedback, groundFeedback, setAmbulanceAlert, setGroundFeedback: setGlobalGroundFeedback } = useContext(GlobalContext);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+    // Local Traffic Simulation (Average 1.4x)
+    const [localTrafficMultiplier, setLocalTrafficMultiplier] = useState(1.50);
+
     const [missionPhase, setMissionPhase] = useState<'AWAITING_MISSION' | 'EN_ROUTE_TO_PATIENT' | 'AWAITING_HOSPITAL_SELECTION' | 'EN_ROUTE_TO_HOSPITAL' | 'MISSION_COMPLETE'>('AWAITING_MISSION');
-    const [activeMission, setActiveMission] = useState<ActiveMission>(null); // Uses the updated type
+    const [activeMission, setActiveMission] = useState<ActiveMission>(null); 
     const [recommendedHospital, setRecommendedHospital] = useState<LiveHospitalData | null>(null);
     const [isPatientCritical, setIsPatientCritical] = useState(false);
     const [isNotifying, setIsNotifying] = useState(false);
@@ -216,11 +237,33 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
     const modalRef = useRef(null);
     const t = useTranslations();
 
+    // Helper: 45km/h base speed
+    const calculateEmergencyETA = (distanceKm: number, multiplier: number) => {
+        const baseSpeed = 45; 
+        const baseTimeMinutes = (distanceKm / baseSpeed) * 60;
+        return baseTimeMinutes * multiplier;
+    };
+
+    // Traffic Simulation Effect
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setLocalTrafficMultiplier(prev => {
+                const jitter = (Math.random() * 0.1) - 0.05; 
+                const centering = (1.5 - prev) * 0.1;
+                let next = prev + jitter + centering;
+                if (next < 1.2) next = 1.2;
+                if (next > 1.7) next = 1.7;
+                return next;
+            });
+        }, 5000); 
+        return () => clearInterval(interval);
+    }, []);
+
     const simulationDuration = useMemo(() => {
-        if (missionPhase !== 'EN_ROUTE_TO_HOSPITAL' || !recommendedHospital) return 60; // Default duration
-        const eta = getDynamicETA(recommendedHospital.distance!, trafficMultiplier);
+        if (missionPhase !== 'EN_ROUTE_TO_HOSPITAL' || !recommendedHospital) return 60; 
+        const eta = calculateEmergencyETA(recommendedHospital.distance!, localTrafficMultiplier);
         return Math.max(45, Math.min(90, eta * 0.75));
-    }, [missionPhase, recommendedHospital, trafficMultiplier]);
+    }, [missionPhase, recommendedHospital, localTrafficMultiplier]);
 
     const { location: userLocation } = useGeolocation(
         'emergency',
@@ -239,7 +282,7 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
             if (isPatientPickup) {
                 const { coords: patientCoords, bearing } = generateRandomPatientCoordinates(userLocation);
                 const pickupDist = getDistance(userLocation[0], userLocation[1], patientCoords[0], patientCoords[1]);
-                const pickupEta = getDynamicETA(pickupDist, trafficMultiplier);
+                const pickupEta = calculateEmergencyETA(pickupDist, localTrafficMultiplier);
 
                 setActiveMission({
                     id: Date.now(),
@@ -255,14 +298,13 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                 const localHospitals = liveData.filter(h => targetDistricts.some(district => h.address.includes(district)));
 
                 if (localHospitals.length >= 2) {
-                    // Filter for smaller/less-equipped source hospitals for transfer simulation
                     const sourceHospitals = localHospitals.filter(h => h.id === 150 || (h.type.toLowerCase().includes('government (state)') && h.totalBeds < 1000));
 
                     if (sourceHospitals.length > 0) {
                         let origin = sourceHospitals[Math.floor(Math.random() * sourceHospitals.length)];
 
                          const pickupDist = getDistance(userLocation[0], userLocation[1], origin.coords[0], origin.coords[1]);
-                         const pickupEta = getDynamicETA(pickupDist, trafficMultiplier);
+                         const pickupEta = calculateEmergencyETA(pickupDist, localTrafficMultiplier);
 
                          setActiveMission({
                             id: Date.now(),
@@ -278,7 +320,7 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                 }
             }
         }
-    }, [isLoggedIn, missionPhase, activeMission, liveData, trafficMultiplier, userLocation, isOnCooldown]);
+    }, [isLoggedIn, missionPhase, activeMission, liveData, localTrafficMultiplier, userLocation, isOnCooldown]);
 
     useEffect(() => {
         const cleanup = setInterval(() => {
@@ -292,7 +334,7 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                 }
                 return newNotified;
             });
-        }, 60000); // Check every minute
+        }, 60000); 
         return () => clearInterval(cleanup);
     }, []);
 
@@ -328,35 +370,27 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
             setIsCalculating(false);
 
             const patientLocation = activeMission!.patientCoords;
-            const sourceHospitalId = activeMission?.sourceHospitalId; // Get the ID to exclude
+            const sourceHospitalId = activeMission?.sourceHospitalId;
             const targetDistricts = ['Theni', 'Madurai', 'Dindigul'];
 
             const hospitals = liveData
                 .filter(h => targetDistricts.some(district => h.address.includes(district)))
-                .filter(h => h.id !== sourceHospitalId) // <--- FIX: Exclude source hospital
+                .filter(h => h.id !== sourceHospitalId)
                 .map(h => ({
                     ...h,
                     distance: getDistance(patientLocation[0], patientLocation[1], h.coords[0], h.coords[1]),
-                    tier: getHospitalTier(h) // <--- NEW: Calculate Tier
+                    tier: getHospitalTier(h) 
                 }))
                 .filter(h => h.distance! <= getMaxTransferDistance() && h.bedStatus !== 'Critical');
 
-            // NEW SORTING LOGIC: Tiered System for Critical, Distance for Routine
             hospitals.sort((a,b) => {
                 if(isPatientCritical) {
-                    // Primary: Tier (Lower is better)
                     const tierDifference = a.tier - b.tier;
                     if(tierDifference !== 0) return tierDifference;
-
-                    // Secondary: Available ICU (Higher is better)
                     const icuDifference = b.availableICUBeds - a.availableICUBeds;
                     if(icuDifference !== 0) return icuDifference;
-
-                    // Tertiary: Distance (Lower is better)
                     return a.distance! - b.distance!;
                 }
-
-                // Routine: Primary is Distance
                 return a.distance! - b.distance!;
             });
 
@@ -374,7 +408,7 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
     const handleNotifyHospital = () => {
         setIsNotifying(true);
         const hospital = recommendedHospital!;
-        const eta = getDynamicETA(hospital.distance!, trafficMultiplier);
+        const eta = calculateEmergencyETA(hospital.distance!, localTrafficMultiplier);
 
         setAmbulanceAlert({
             eta: Math.round(eta),
@@ -387,7 +421,6 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
 
         addGroundFeedback(`Pre-alert sent to ${hospital.name}. Awaiting acknowledgement.`);
         
-        // Simulate acknowledgement after 2.5 seconds
         setTimeout(() => {
             addGroundFeedback(`**HOSPITAL ACKNOWLEDGED**: ${hospital.name} is preparing for arrival.`);
         }, 2500);
@@ -496,15 +529,46 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                         <h2 className="text-2xl font-bold text-gray-600 mt-4">Calculating Optimal Destination...</h2>
                     </div>
                 );
+                
+                const rawEta = calculateEmergencyETA(recommendedHospital!.distance!, localTrafficMultiplier);
+
+                let trafficColor = 'text-green-600';
+                let trafficLabel = 'Clear';
+                let TrafficIcon = FaCheckCircle;
+            
+                if (localTrafficMultiplier > 1.55) {
+                    trafficColor = 'text-red-600';
+                    trafficLabel = 'Heavy Traffic';
+                    TrafficIcon = FaExclamationTriangle;
+                } else if (localTrafficMultiplier > 1.35) {
+                    trafficColor = 'text-yellow-600';
+                    trafficLabel = 'Moderate Traffic';
+                    TrafficIcon = FaRoute;
+                }
+
                 return (
                      <div className="text-center">
                         <h2 className="text-3xl font-bold text-gray-800">System Recommendation</h2>
                         {recommendedHospital && (
                             <>
                              <p className="text-4xl font-extrabold text-green-600 mt-2">{recommendedHospital.name}</p>
-                             <p className="text-lg text-gray-600 mt-2">
-                                ~{getDynamicETA(recommendedHospital.distance!, trafficMultiplier).toFixed(0)} min ETA | {recommendedHospital.availableBeds.toFixed(0)} Beds | {recommendedHospital.availableICUBeds.toFixed(0)} ICU
-                             </p>
+                             
+                             <div className="flex flex-col items-center gap-1 mt-2">
+                                <p className="text-xl text-gray-700 font-bold">
+                                    ~{rawEta.toFixed(0)} min ETA 
+                                    <span className="font-normal text-gray-500 text-lg mx-2">|</span> 
+                                    {recommendedHospital.availableBeds.toFixed(0)} Beds 
+                                    <span className="font-normal text-gray-500 text-lg mx-2">|</span> 
+                                    {recommendedHospital.availableICUBeds.toFixed(0)} ICU
+                                </p>
+                                
+                                <div className={`flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 border ${trafficColor} border-gray-200 shadow-sm mt-1`}>
+                                    <TrafficIcon size={14} />
+                                    <span className="text-xs font-bold uppercase tracking-wider">
+                                        {trafficLabel} ({localTrafficMultiplier.toFixed(2)}x)
+                                    </span>
+                                </div>
+                             </div>
                             </>
                         )}
                     </div>
@@ -574,7 +638,12 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                 return (
                     <div className="space-y-4 w-full">
                         <button onClick={handleNavigate} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-base w-full flex items-center justify-center gap-2"><FaRoute/> Navigate</button>
-                        <a href={`tel:${recommendedHospital!.helpline}`} className="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg text-base w-full flex items-center justify-center gap-2"><FaPhone/> Hospital Helpline</a>
+                        
+                        {/* UPDATED: Teal Color for Medical/Helpline Button */}
+                        <a href={`tel:${recommendedHospital!.helpline}`} className="bg-teal-100 text-teal-800 font-bold py-2 px-4 rounded-lg text-base w-full flex items-center justify-center gap-2 hover:bg-teal-200 transition-colors">
+                            <FaPhone/> Hospital Helpline
+                        </a>
+
                         <button onClick={() => setShowCancelModal(true)} className="bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg text-base w-full flex items-center justify-center gap-2"><FaTimes/> Cancel Mission</button>
                         <button onClick={handleCompleteMission} disabled={currentDistance > 1} className={`font-bold py-2 px-4 rounded-lg text-base w-full ${currentDistance > 1 ? 'bg-gray-400 text-gray-700 cursor-not-allowed' : 'bg-green-500 text-white hover:bg-green-600'}`}><FaCheckCircle/> Mission Complete</button>
                     </div>
@@ -607,7 +676,8 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                         </div>
                     </div>
                 </div>
-                <PortalFooter trafficMultiplier={1.0} />
+                {/* NEW: Use local traffic logic even in login screen (simulated with 1.5 default) */}
+                <PortalFooter trafficMultiplier={1.5} />
             </div>
         );
     }
@@ -620,31 +690,46 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
         <div className="flex flex-col h-screen bg-slate-100 font-sans overflow-hidden">
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isLoggedIn={isLoggedIn} onGoToIntro={onGoToIntro} />
 
-            <main className="flex-grow p-3 flex flex-col space-y-3 overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-shrink-0">
-                    <div className="p-2 rounded-lg shadow-lg bg-gray-800 text-white text-center flex flex-col justify-center items-center">
+            <main className={`flex-grow p-3 flex flex-col space-y-3 overflow-hidden transition-all duration-300 ${showCancelModal ? 'blur-sm grayscale opacity-50' : ''}`}>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-shrink-0">
+                    
+                    {/* Left Status Bar: Handles Mechanical Failure Red State */}
+                    <div className={`p-2 rounded-lg shadow-lg text-white text-center flex flex-col justify-center items-center ${isOnCooldown ? 'bg-red-800' : 'bg-gray-800'}`}>
                         <h2 className="text-xs font-bold text-gray-400 uppercase">Current Status</h2>
                         <div className="text-xl font-bold truncate w-full">
-                            {missionPhase.replace(/_/g, ' ')}
+                            {isOnCooldown ? "TEMPORARILY OFFLINE" : missionPhase.replace(/_/g, ' ')}
                         </div>
                     </div>
+
+                    {/* Right Status Bar: No Glow on Box, but Glow on Text */}
                     <div className="bg-white p-2 rounded-lg shadow-lg flex flex-col justify-center items-center">
-                         <h2 className="text-xs font-bold text-gray-400 uppercase">
-                             {missionPhase !== 'AWAITING_MISSION' ? 'MISSION ACTIVE' : 'MISSION CONTROL'}
-                         </h2>
-                        {activeMission && missionPhase === 'AWAITING_MISSION' ? (
-                            <div className="w-full bg-red-700 p-2 rounded-lg shadow-2xl animate-pulse text-white text-center">
-                                <p className="text-md font-bold flex items-center justify-center gap-2"><FaBell className='text-yellow-400' /> NEW MISSION</p>
-                                <p className="text-sm truncate mt-1">**{activeMission.name.toUpperCase()}:** {activeMission.address}</p>
-                                {activeMission.pickupEta && (<p className="font-bold text-yellow-300">Pickup ETA: ~{activeMission.pickupEta.toFixed(0)} min ({activeMission.pickupDist!.toFixed(1)} km)</p>)}
-                                <div className='flex gap-2 mt-2'>
-                                    <button onClick={() => { setActiveMission(null); addGroundFeedback("Mission Declined by Crew.")} } className='flex-1 bg-gray-600 font-bold py-2 rounded-lg text-sm'>DECLINE</button>
-                                    <button onClick={handleAcceptMission} className='flex-1 bg-green-600 font-bold py-2 rounded-lg text-sm'>ACCEPT</button>
-                                </div>
-                            </div>
-                        ) : (
-                           missionPhase === 'AWAITING_MISSION' && <div className="text-gray-400 font-semibold text-lg">AWAITING MISSION ASSIGNMENT</div>
-                        )}
+                         {isOnCooldown ? (
+                            <>
+                                <h2 className="text-xs font-bold text-red-500 uppercase">SYSTEM ALERT</h2>
+                                <div className="text-xl font-bold text-red-700">MECHANICAL FAILURE</div>
+                            </>
+                         ) : (
+                            <>
+                                {/* UPDATED: Mission Active Text has Glow and larger size */}
+                                <h2 className={`font-bold uppercase ${missionPhase !== 'AWAITING_MISSION' ? 'text-green-600 text-sm animate-pulse drop-shadow-[0_0_5px_rgba(22,163,74,0.5)]' : 'text-xs text-gray-400'}`}>
+                                     {missionPhase !== 'AWAITING_MISSION' ? 'MISSION ACTIVE' : 'MISSION CONTROL'}
+                                </h2>
+                                
+                                {activeMission && missionPhase === 'AWAITING_MISSION' ? (
+                                    <div className="w-full bg-red-700 p-2 rounded-lg shadow-2xl animate-pulse text-white text-center">
+                                        <p className="text-md font-bold flex items-center justify-center gap-2"><FaBell className='text-yellow-400' /> NEW MISSION</p>
+                                        <p className="text-sm truncate mt-1">**{activeMission.name.toUpperCase()}:** {activeMission.address}</p>
+                                        {activeMission.pickupEta && (<p className="font-bold text-yellow-300">Pickup ETA: ~{activeMission.pickupEta.toFixed(0)} min ({activeMission.pickupDist!.toFixed(1)} km)</p>)}
+                                        <div className='flex gap-2 mt-2'>
+                                            <button onClick={() => { setActiveMission(null); addGroundFeedback("Mission Declined by Crew.")} } className='flex-1 bg-gray-600 font-bold py-2 rounded-lg text-sm'>DECLINE</button>
+                                            <button onClick={handleAcceptMission} className='flex-1 bg-green-600 font-bold py-2 rounded-lg text-sm'>ACCEPT</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                   missionPhase === 'AWAITING_MISSION' && <div className="text-gray-400 font-semibold text-lg">AWAITING MISSION ASSIGNMENT</div>
+                                )}
+                            </>
+                         )}
                     </div>
                 </div>
 
@@ -664,7 +749,7 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                 </div>
             </main>
 
-            <PortalFooter trafficMultiplier={trafficMultiplier}/>
+            <PortalFooter trafficMultiplier={localTrafficMultiplier}/>
 
             <CSSTransition nodeRef={modalRef} in={showCancelModal} timeout={300} classNames="dropdown" unmountOnExit>
                  <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">

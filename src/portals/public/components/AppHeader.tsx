@@ -1,73 +1,62 @@
-import { useState, useRef, useContext, useEffect } from 'react';
-import { FaChevronDown, FaHome, FaRoute } from 'react-icons/fa';
-import { CSSTransition } from 'react-transition-group';
-import { useTranslations } from '../../../hooks/useTranslations';
-import { LanguageContext } from '../../../App';
-import type { Portal } from '../../../types';
-import IndianLogo from '../../../assets/logo.svg';
+// src/portals/public/components/AppHeader.tsx
+import { FaSignOutAlt, FaRoute } from 'react-icons/fa';
 
-// FIX: Update type signature to allow null for useRef(null) initialization
-const useOutsideClick = (ref: React.RefObject<HTMLDivElement | null>, callback: () => void) => {
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (ref.current && !ref.current.contains(event.target as Node)) {
-                callback();
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [ref, callback]);
-};
+interface AppHeaderProps {
+    onRecommendClick: () => void;
+    onGoToIntro: () => void;
+    onReset: () => void;
+}
 
-export const AppHeader = ({ activePortal, setActivePortal, onRecommendClick, onGoToIntro }: { activePortal: Portal; setActivePortal: (p: Portal) => void; onRecommendClick: () => void; onGoToIntro: () => void; }) => {
-    const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const { language, setLanguage } = useContext(LanguageContext);
-    const t = useTranslations();
-    const portals: Portal[] = ['PUBLIC', 'EMERGENCY', 'HOSPITAL', 'STRATEGIC'];
-    const outerRef = useRef<HTMLDivElement>(null);
-    const innerRef = useRef<HTMLDivElement>(null);
-
-    useOutsideClick(outerRef, () => setDropdownOpen(false));
-
+export const AppHeader = ({ onRecommendClick, onGoToIntro, onReset }: AppHeaderProps) => {
+    
     return (
-        <header className="bg-white shadow-md z-50 flex-shrink-0 sticky top-0">
-            <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-                <a href="/" className="flex items-center gap-3 cursor-pointer">
-                    <img src={IndianLogo} alt="Logo" className="h-10 w-10"/>
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('public.header')}</h1>
-                </a>
-                <div className="flex items-center gap-4">
-                     <button onClick={onGoToIntro} className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors" title="Go to Intro Page">
-                        <FaHome />
-                    </button>
-                    <button onClick={onRecommendClick} className="flex items-center gap-2 bg-purple-600 text-white font-bold py-2 px-3 rounded-lg hover:bg-purple-700 shadow-md smart-suggestion-button" title={t('recommend.button.title')}>
-                        <FaRoute size={12} /> <span className='hidden sm:inline'>AI SmartRoute</span>
-                    </button>
-                    <button onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')} className="relative w-16 h-8 flex items-center bg-gray-200 rounded-full p-1 transition-colors duration-300 focus:outline-none" title={t('language.switcher.label')}>
-                        <div className={`absolute left-1 transition-transform duration-300 transform ${language === 'hi' ? 'translate-x-8' : 'translate-x-0'} w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center`}>
-                           <span className='font-bold text-xs text-blue-600'>{language === 'en' ? 'En' : 'हि'}</span>
-                        </div>
-                    </button>
-                    <div ref={outerRef} className="flex items-center gap-2 relative z-50">
-                        <button onClick={() => setDropdownOpen(p => !p)} className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300">
-                            {t(`portal.${activePortal.toLowerCase()}`)}
-                            <FaChevronDown size={12} />
-                        </button>
-                        <CSSTransition nodeRef={innerRef} in={isDropdownOpen} timeout={200} classNames="dropdown" unmountOnExit>
-                            <div ref={innerRef} className="absolute right-0 top-12 bg-white rounded-lg shadow-xl border z-50 w-48 py-1">
-                                <p className='text-xs font-semibold text-gray-500 px-3 py-1 border-b'>{t('switch.portal')}</p>
-                                {portals.map(p => (
-                                    <button key={p} onClick={() => { setActivePortal(p); setDropdownOpen(false); }} className={`w-full text-left px-3 py-2 text-sm transition-colors ${activePortal === p ? 'bg-blue-500 text-white font-bold' : 'text-gray-700 hover:bg-gray-100'}`}>
-                                        {t(`portal.${p.toLowerCase()}`)}
-                                    </button>
-                                ))}
-                            </div>
-                        </CSSTransition>
+        <header className="bg-white shadow-sm relative z-40">
+            {/* Tricolor Strip */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-orange-500 via-white to-green-600"></div>
+
+            <div className="max-w-7xl mx-auto px-4 py-1.5 flex justify-between items-center">
+                
+                {/* Title (Resets Home, No Glow) */}
+                <div 
+                    className="flex items-center gap-3 cursor-pointer group select-none" 
+                    onClick={onReset}
+                    title="Reset to Home"
+                >
+                    <img src="/src/assets/logo.svg" alt="Emblem" className="h-10 w-10 drop-shadow-sm" />
+                    <div className="flex flex-col justify-center">
+                        <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 uppercase leading-none tracking-tight transition-colors">
+                            National Bed Occupancy Dashboard
+                        </h1>
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                            Ministry of Health & Family Welfare
+                        </p>
                     </div>
                 </div>
+
+                {/* Right Actions */}
+                <div className="flex items-center gap-3">
+                    
+                    {/* AI SmartRoute */}
+                    <button 
+                        onClick={onRecommendClick}
+                        className="flex items-center gap-2 bg-purple-700 hover:bg-purple-800 text-white px-3 py-1.5 rounded-lg shadow-sm font-bold text-sm transition-all"
+                    >
+                        <FaRoute className="text-white text-lg" />
+                        <span className="hidden md:inline">AI SmartRoute</span>
+                    </button>
+
+                    {/* Exit Button Only */}
+                    <button 
+                        onClick={onGoToIntro}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 font-bold text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all"
+                    >
+                        <FaSignOutAlt />
+                        <span>Exit</span>
+                    </button>
+                </div>
             </div>
+            {/* Bottom Border */}
+            <div className="h-0.5 w-full bg-blue-900 opacity-80"></div>
         </header>
     );
-}
+};

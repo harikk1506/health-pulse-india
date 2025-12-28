@@ -1,43 +1,95 @@
 // src/portals/public/components/HospitalListItem.tsx
-import { FaHeartbeat, FaStar } from 'react-icons/fa';
+import { FaHeartbeat, FaStar, FaLandmark, FaBuilding } from 'react-icons/fa';
 import { BiPlusMedical } from 'react-icons/bi';
 import type { LiveHospitalData } from '../../../types';
 
 export const HospitalListItem = ({ hospital, onSelect }: { hospital: LiveHospitalData; onSelect: () => void; }) => {
-    const occupancyColor = hospital.bedOccupancy > 90 ? 'border-rose-500' : hospital.bedOccupancy > 75 ? 'border-amber-500' : 'border-emerald-500';
-    const nameSize = hospital.name.length > 40 ? 'text-sm' : 'text-base';
     
-    const typeText = hospital.type.split(' ')[0];
-    let typeColor = 'bg-gray-100 text-gray-800';
-    if (typeText.toLowerCase().includes('government')) { typeColor = 'bg-blue-100 text-blue-800'; } 
-    else if (typeText.toLowerCase().includes('private')) { typeColor = 'bg-green-100 text-green-800'; } 
-    else if (typeText.toLowerCase().includes('trust')) { typeColor = 'bg-purple-100 text-purple-800'; } 
+    // Status Logic
+    const isFull = hospital.bedStatus === 'AT CAPACITY';
+    const isCritical = !isFull && hospital.bedOccupancy > 90;
     
+    // Border Logic
+    const borderClass = isFull 
+        ? 'border-2 border-slate-900 bg-slate-50'  // Black Border for Full
+        : 'border border-slate-200 bg-white hover:border-blue-300'; // Standard
+
+    // Color Tiers
+    let occupancyColor = 'text-emerald-600';
+    if (hospital.bedOccupancy > 90) occupancyColor = 'text-rose-600';
+    else if (hospital.bedOccupancy > 75) occupancyColor = 'text-amber-600';
+
+    const icuColor = hospital.availableICUBeds < 1 ? 'text-rose-600' : 'text-blue-600';
+    const bedColor = Math.floor(hospital.availableBeds) <= 0 ? 'text-slate-400' : 'text-emerald-600';
+    const bedTextClass = Math.floor(hospital.availableBeds) <= 0 ? 'text-slate-500 font-medium' : 'text-slate-700 font-bold';
+
+    const isGovt = hospital.type.toLowerCase().includes('government');
+    const TypeIcon = isGovt ? FaLandmark : FaBuilding;
+
     return (
-        <div onClick={onSelect} className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 ${occupancyColor} overflow-hidden flex flex-col relative`}>
-            <div className="p-4">
-                <div className="flex justify-between items-start">
-                    <h3 
-                        className={`${nameSize} font-bold text-gray-800 pr-2 flex-1`} 
-                        title={hospital.name} 
-                    >
-                        {hospital.name}
-                    </h3>
-                    <div className='text-right flex-shrink-0'>
-                        <p className="font-bold text-lg text-blue-600">{hospital.distance ? `${hospital.distance.toFixed(1)} km` : 'N/A'}</p>
-                        <p className={`text-xs font-bold mt-0.5 ${hospital.bedOccupancy > 90 ? 'text-rose-500' : 'text-gray-500'}`}>
-                            Occ: {hospital.bedOccupancy.toFixed(1)}%
-                        </p>
+        <div 
+            onClick={onSelect} 
+            className={`h-full ${borderClass} rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden flex flex-col justify-between group`}
+        >
+            <div className="p-3 flex-grow flex flex-col">
+                {/* TOP ROW */}
+                <div className="flex justify-between items-start gap-2">
+                    {/* Name Section (Grow to push bottom down) */}
+                    <div className="w-[75%] flex flex-col">
+                        <div className="flex items-center gap-1 mb-1">
+                            <TypeIcon className="text-slate-400 text-[10px]" />
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                                {isGovt ? 'Govt' : 'Pvt'}
+                            </span>
+                        </div>
+                        
+                        {/* NAME: Line Clamp 3 + Padding for Descenders */}
+                        <h3 
+                            className="text-sm font-bold text-slate-800 leading-snug group-hover:text-blue-700 line-clamp-3 pb-0.65" 
+                            title={hospital.name}
+                            style={{ minHeight: '3.2em' }} // Reserve space for 2 lines visually to align rows
+                        >
+                            {hospital.name}
+                        </h3>
+                        
+                        <div className="flex items-center gap-1 mt-auto pt-2">
+                            <FaStar className="text-amber-400 text-[10px]" />
+                            <span className="text-[11px] font-semibold text-slate-500">{hospital.googleRating.toFixed(1)}</span>
+                        </div>
+                    </div>
+
+                    {/* Status Section (Fixed Width) */}
+                    <div className="w-[25%] flex flex-col items-end">
+                        {isFull ? (
+                            <span className="bg-slate-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider mb-1">
+                                FULL
+                            </span>
+                        ) : (
+                            <span className={`text-xs font-extrabold mb-1 ${occupancyColor}`}>
+                                Occ: {hospital.bedOccupancy.toFixed(0)}%
+                            </span>
+                        )}
+                        <span className="font-bold text-sm text-slate-400 whitespace-nowrap">
+                            {hospital.distance ? hospital.distance.toFixed(0) : '0'} km
+                        </span>
                     </div>
                 </div>
-                <div className="flex justify-between items-center mt-1">
-                    <p className="text-xs text-gray-500 flex items-center gap-1"><FaStar className='text-yellow-500'/> {hospital.googleRating.toFixed(1)}</p>
-                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${typeColor}`}>{typeText}</span>
-                </div>
             </div>
-            <div className="p-3 border-t bg-slate-50 flex justify-around text-xs font-semibold">
-                <span className='flex items-center gap-1 text-emerald-700'><BiPlusMedical/> {Math.floor(hospital.availableBeds)} Beds</span>
-                <span className='flex items-center gap-1 text-rose-700'><FaHeartbeat/> {Math.floor(hospital.availableICUBeds)} ICU</span>
+
+            {/* BOTTOM ROW (Pinned) */}
+            <div className="px-3 py-2 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center text-[11px]">
+                <div className="flex items-center gap-1.5">
+                    <BiPlusMedical className={`${bedColor} text-xs`} />
+                    <span className={bedTextClass}>
+                        {Math.floor(hospital.availableBeds) <= 0 ? 'Waitlist (0)' : `${Math.floor(hospital.availableBeds)} Beds`}
+                    </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <FaHeartbeat className={`${icuColor} text-xs`} />
+                    <span className={hospital.availableICUBeds < 1 ? 'text-rose-700 font-bold' : 'text-slate-600 font-bold'}>
+                        {Math.floor(hospital.availableICUBeds)} ICU
+                    </span>
+                </div>
             </div>
         </div>
     );

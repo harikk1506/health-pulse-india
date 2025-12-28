@@ -554,7 +554,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
             trend_critical: getTrend(criticalHospitals.length, prevCriticalHospitalsCount),
 
             avgWaitTime: avgWaitTimeFiltered, // <-- NOW USES THE PUBLIC-ONLY AVERAGE
-            trend_wait: getTrend(previous.avgWaitTime, avgWaitTimeFiltered),
+            trend_wait: 'stable',
 
             avgALOS: liveData.reduce((acc, h) => acc + h.ALOS_days, 0) / liveData.length,
             trend_alos: getTrend(liveData.reduce((acc, h) => acc + h.ALOS_days, 0), liveData.reduce((acc, h) => acc + h.ALOS_days, 0)),
@@ -639,12 +639,9 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     return (
         <div className="flex flex-col h-screen font-sans overflow-hidden bg-slate-100">
             <PortalHeader activePortal={activePortal} setActivePortal={setActivePortal} onLogout={handleLogout} isSidebarCollapsed={isSidebarCollapsed} setIsSidebarCollapsed={setIsSidebarCollapsed} onGoToIntro={onGoToIntro} />
-            <div className="flex flex-grow overflow-hidden min-h-0">
-                {/* R-STRATEGIC-2: Pass feed status to sidebar */}
-                <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} isFeedActive={isFeedActive} />
-
-                {/* FINAL FIX: The main container uses px-2 py-0 to eliminate the scrollbar */}
-                <main className="flex-grow flex flex-col px-2 py-0 overflow-y-auto gap-2">
+            <div className={`flex flex-grow overflow-hidden min-h-0 transition-all duration-300 ${showCriticalModal ? 'blur-sm grayscale opacity-50' : ''}`}> 
+    <StrategicSidebar isCollapsed={isSidebarCollapsed} lastUpdated={lastUpdated} isFeedActive={isFeedActive} />
+    <main className="flex-grow flex flex-col px-2 py-0 overflow-y-auto gap-2">
 
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
                     <div className='grid grid-cols-6 bg-white rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200 mt-1'>
