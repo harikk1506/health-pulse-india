@@ -1,6 +1,6 @@
 // src/portals/public/components/FilterBar.tsx
 import { FaSearch, FaMapMarkerAlt, FaProcedures, FaCompass, FaLandmark, FaBuilding, FaTimes, FaUndo } from 'react-icons/fa';
-import type { Filters } from '../../../../types';
+import { Filters, OwnershipType } from '../../../types';
 
 interface FilterBarProps {
     filters: Filters;
@@ -11,11 +11,11 @@ interface FilterBarProps {
 export const FilterBar = ({ filters, setFilters, onReset }: FilterBarProps) => {
     
     const toggleType = (type: string) => {
-        const newTypes = filters.types.includes(type)
-            ? filters.types.filter(t => t !== type)
-            : [...filters.types, type];
-        setFilters({ ...filters, types: newTypes });
-    };
+    const newTypes = filters.types.includes(type)
+        ? filters.types.filter((t: string) => t !== type) // Added : string
+        : [...filters.types, type];
+    setFilters({ ...filters, types: newTypes });
+};
 
     const clearSearch = () => {
         setFilters({ ...filters, searchTerm: '' });

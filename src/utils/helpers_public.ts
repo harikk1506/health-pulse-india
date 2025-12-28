@@ -1,12 +1,11 @@
 // src/utils/helpers_public.ts
 import { useState, useEffect, useRef } from 'react';
-import type { Hospital, LiveHospitalData, HistoricalStat, MciState, NodalConfig, HistoricalDataPoint } from '../types';
+import type { Hospital, LiveHospitalData, HistoricalStat, MciState, NodalConfig, HistoricalDataPoint, BedStatus } from '../types';
 import originalHospitalData from '../data/hospitals.json';
 
 const MAX_TRANSFER_DISTANCE_KM = 85;
 
 /* --- MISSING CONSTANTS ADDED HERE (FIXES CRASH) --- */
-const MAX_BED_CHANGE_PER_HOUR = 2.5; 
 const MAX_FATIGUE_CHANGE = 0.5;
 const MAX_SATISFACTION_CHANGE = 0.75;
 
@@ -183,7 +182,7 @@ export const initializeSimulation = (hospital: Hospital): LiveHospitalData => {
 
   const bedOccupancy = Math.min(100, bedOccupancyRaw);
   
-  let bedStatus = 'Available';
+  let bedStatus: BedStatus = 'Available';
   if (bedOccupancy >= 98) { bedStatus = 'AT CAPACITY'; } 
   else if (bedOccupancy > 95) { bedStatus = 'Critical'; } 
   else if (bedOccupancy > 80) { bedStatus = 'High Occupancy'; }
@@ -322,7 +321,7 @@ if (isInMciRegion) {
   const oxygenConsumptionRate = (occupiedICUBeds / totalICU) * 0.015 + (occupiedBeds / totalBeds) * 0.004;
   oxygen_supply_days = Math.max(0, oxygen_supply_days - oxygenConsumptionRate);
 
-  let bedStatus = 'Available';
+  let bedStatus: BedStatus = 'Available';
   if (bedOccupancy >= 98) { bedStatus = 'AT CAPACITY'; } 
   else if (bedOccupancy > 95) { bedStatus = 'Critical'; } 
   else if (bedOccupancy > 80) { bedStatus = 'High Occupancy'; }

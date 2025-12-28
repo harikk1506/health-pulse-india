@@ -7,7 +7,6 @@ export const HospitalListItem = ({ hospital, onSelect }: { hospital: LiveHospita
     
     // Status Logic
     const isFull = hospital.bedStatus === 'AT CAPACITY';
-    const isCritical = !isFull && hospital.bedOccupancy > 90;
     
     // Border Logic
     const borderClass = isFull 

@@ -32,7 +32,7 @@ export interface Hospital {
   ppe_stock_level: 'Good' | 'Low' | 'Critical' | 'Stockout';
 }
 
-export type BedStatus = 'Available' | 'High Occupancy' | 'Critical' | 'Accepting Transfers';
+export type BedStatus = 'Available' | 'High Occupancy' | 'Critical' | 'Accepting Transfers' | 'AT CAPACITY';
 
 export interface LiveHospitalData extends Hospital {
   occupiedBeds: number;
