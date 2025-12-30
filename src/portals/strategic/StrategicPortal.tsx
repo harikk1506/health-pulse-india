@@ -644,7 +644,7 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
     <main className="flex-grow flex flex-col px-2 py-0 overflow-y-auto gap-2">
 
                     {/* TOP-LEVEL METRICS (6-KPI Layout from Screenshot 308) */}
-                    <div className='grid grid-cols-6 bg-white rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200 mt-1'>
+                    <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 bg-white rounded-lg shadow-lg flex-shrink-0 divide-x divide-slate-200 mt-1'>
                         <KpiMetric title="National BOR" value={nationalStats.avgOccupancy.toFixed(1)} unit="%" color={COLORS.primaryBlue} icon={FaBed} isAlert={nationalStats.avgOccupancy > 85} trend={nationalStats.trend_bor} onClick={undefined} />
                         <KpiMetric title="Hospitals >85% BOR" value={nationalStats.criticalHospitalPercent.toFixed(1)} unit="%" color={COLORS.alertRed} icon={FaHeartbeat} isAlert={nationalStats.criticalHospitalPercent > 18 || isAnyZoneCritical} onClick={() => setShowCriticalModal(true)} trend={nationalStats.trend_critical} />
                         <KpiMetric title="Avg. Wait Time" value={nationalStats.avgWaitTime.toFixed(0)} unit=" min" color={nationalStats.avgWaitTime > 90 ? COLORS.alertRed : COLORS.warningOrange} icon={FaClock} isAlert={nationalStats.avgWaitTime > 120} trend={nationalStats.trend_wait} onClick={undefined} />
@@ -654,14 +654,14 @@ const StrategicPortal = ({ activePortal, setActivePortal, onGoToIntro }: Generic
                     </div>
 
                     {/* CHART AND ALERT PANELS (2-column split layout from Screenshot 308) */}
-                    <div className="flex-grow grid grid-cols-12 gap-2">
-                        {/* Left Column: Zonal Chart (col-span-7) */}
-                        <div className="col-span-7">
+                    <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-2 overflow-y-auto">
+                        {/* Left Column: Zonal Chart (col-span-1 lg:col-span-7) */}
+                        <div className="col-span-1 lg:col-span-7">
                             <RegionalHotspotsChart stats={regionalStats} />
                         </div>
 
-                        {/* Right Column: Performance Index and BCAP Panel (col-span-5) */}
-                        <div className="col-span-5 flex flex-col gap-2">
+                        {/* Right Column: Performance Index and BCAP Panel (col-span-1 lg:col-span-5) */}
+                        <div className="col-span-1 lg:col-span-5 flex flex-col gap-2">
                             <SystemHealthPanel stats={nationalStats} />
                             <div className="bg-white px-3 py-2 rounded-lg shadow-lg flex-grow flex flex-col border border-slate-200">
                                 <h2 className="text-base font-bold flex items-center gap-2" style={{ color: COLORS.textDark }}><FaShieldAlt /> Bed Capacity Alert Panel (BCAP)</h2>

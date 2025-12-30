@@ -1,40 +1,53 @@
 import { FaClock, FaSitemap } from 'react-icons/fa';
 
-export const StrategicSidebar = ({ isCollapsed, lastUpdated, isFeedActive }: { isCollapsed: boolean, lastUpdated: string, isFeedActive: boolean }) => {
+export const StrategicSidebar = ({ isCollapsed, setIsSidebarCollapsed, lastUpdated, isFeedActive }: { isCollapsed: boolean, setIsSidebarCollapsed: (c: boolean) => void, lastUpdated: string, isFeedActive: boolean }) => {
     return (
-        <div className={`${isCollapsed ? 'w-20' : 'w-64'} bg-slate-900 text-white flex flex-col shadow-2xl flex-shrink-0 h-full transition-all duration-300 z-10`}>
-            <div className={`p-4 bg-slate-800 flex items-center border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
-                <div className="w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0">SC</div>
-                {!isCollapsed && ( 
-                    <div className="ml-3"> 
-                        <p className="text-sm font-semibold text-white">Strategic Command</p> 
-                        <p className="text-xs text-gray-300">MoHFW</p>
-                        <div className="mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-green-600 inline-block">Active Session</div>
-                    </div> 
+        <>
+            {!isCollapsed && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    onClick={() => setIsSidebarCollapsed(true)} 
+                />
+            )}
+            <div className={`fixed md:relative z-50 h-full bg-slate-900 text-white flex flex-col shadow-2xl flex-shrink-0 transition-all duration-300 
+                ${isCollapsed ? '-translate-x-full md:translate-x-0 md:w-20' : 'translate-x-0 w-64'}`}>
+                
+                <div className={`p-4 bg-slate-800 flex items-center border-b border-slate-700 transition-all duration-300 ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
+                    <div className="w-12 h-12 bg-white text-slate-900 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0">SC</div>
+                    {(!isCollapsed || window.innerWidth < 768) && ( 
+                        <div className="ml-3"> 
+                            <p className="text-sm font-semibold text-white">Strategic Command</p> 
+                            <p className="text-xs text-gray-300">MoHFW</p>
+                            <div className="mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-green-600 inline-block">Active Session</div>
+                        </div> 
+                    )}
+                </div>
+                <nav className="flex-grow p-4 space-y-1">
+                    <button 
+                        className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`} 
+                        title="National Overview"
+                        onClick={() => {
+                            if (window.innerWidth < 768) setIsSidebarCollapsed(true);
+                        }}
+                    >
+                        <FaSitemap size={20} /> 
+                        {(!isCollapsed || window.innerWidth < 768) && <span className="truncate">National Overview</span>} 
+                    </button> 
+                </nav>
+                {(!isCollapsed || window.innerWidth < 768) && (
+                    <div className="p-4 mt-auto border-t border-gray-700">
+                        <div className='bg-gray-800 rounded-lg p-3 text-center'>
+                             {/* R-STRATEGIC-2: Time Synchronization Visual */}
+                            <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'>
+                                <FaClock/> Live Data Feed 
+                                {/* Uses the `isFeedActive` prop to determine pulse/color */}
+                                <span className={`w-2 h-2 rounded-full ml-1 ${isFeedActive ? 'bg-green-500 gps-pulse-small' : 'bg-red-500'}`}></span>
+                            </p>
+                            <p className={`text-sm font-semibold ${isFeedActive ? 'text-green-400' : 'text-red-400'}`}>Last Updated: {lastUpdated}</p>
+                        </div>
+                    </div>
                 )}
             </div>
-            <nav className="flex-grow p-4 space-y-1">
-                <button 
-                    className={`flex items-center gap-3 p-3 rounded-lg w-full text-left text-sm transition-colors bg-orange-500 font-bold`} 
-                    title="National Overview"
-                >
-                    <FaSitemap size={20} /> 
-                    {!isCollapsed && <span className="truncate">National Overview</span>} 
-                </button> 
-            </nav>
-            {!isCollapsed && (
-                <div className="p-4 mt-auto border-t border-gray-700">
-                    <div className='bg-gray-800 rounded-lg p-3 text-center'>
-                         {/* R-STRATEGIC-2: Time Synchronization Visual */}
-                        <p className='text-xs font-bold text-gray-400 flex items-center justify-center gap-1'>
-                            <FaClock/> Live Data Feed 
-                            {/* Uses the `isFeedActive` prop to determine pulse/color */}
-                            <span className={`w-2 h-2 rounded-full ml-1 ${isFeedActive ? 'bg-green-500 gps-pulse-small' : 'bg-red-500'}`}></span>
-                        </p>
-                        <p className={`text-sm font-semibold ${isFeedActive ? 'text-green-400' : 'text-red-400'}`}>Last Updated: {lastUpdated}</p>
-                    </div>
-                </div>
-            )}
-        </div>
+        </>
     );
 };

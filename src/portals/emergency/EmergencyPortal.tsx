@@ -733,17 +733,17 @@ const EmergencyPortal = ({ activePortal, setActivePortal, onGoToIntro }: { activ
                     </div>
                 </div>
 
-                <div className="flex-grow bg-white rounded-lg shadow-inner flex relative overflow-hidden p-4 gap-4">
-                    <div className="w-1/4 flex flex-col">
+                <div className="flex-grow bg-white rounded-lg shadow-inner flex flex-col md:flex-row relative overflow-hidden p-4 gap-4 overflow-y-auto md:overflow-y-hidden">
+                    <div className="w-full md:w-1/4 flex flex-col order-2 md:order-1">
                         <h3 className="text-lg font-bold text-gray-700 mb-2 text-center">Mission Log</h3>
                         <div className="flex-grow bg-gray-100 p-2 rounded-lg overflow-y-auto text-xs space-y-1">
                             {groundFeedback.map((msg, i) => <p key={i} className="border-b pb-1">{msg}</p>)}
                         </div>
                     </div>
-                    <div className="flex-grow flex items-center justify-center">
+                    <div className="flex-grow flex items-center justify-center min-h-[300px] order-1 md:order-2">
                         {renderMainContent()}
                     </div>
-                    <div className="w-1/4 flex flex-col items-center justify-center">
+                    <div className="w-full md:w-1/4 flex flex-col items-center justify-center order-3">
                         {renderActionPanel()}
                     </div>
                 </div>

@@ -169,7 +169,7 @@ const PublicPortal = ({ activePortal: _activePortal, setActivePortal: _setActive
             className="flex-grow overflow-y-auto p-4 scroll-smooth" 
             ref={scrollContainerRef}
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-7xl mx-auto pb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full px-4 pb-2">
                 {displayData.slice(0, visibleCount).map((h) => (
                     <div key={h.id} className="h-[160px]"> 
                         <HospitalListItem hospital={h} onSelect={() => setSelectedHospital(h)} />

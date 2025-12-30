@@ -28,12 +28,12 @@ export const CriticalHospitalsModal = ({ onClose, criticalHospitals }: { onClose
     }, [criticalHospitals]);
 
     return (
-        <div className="relative w-full max-w-md bg-white rounded-xl shadow-2xl flex flex-col">
+        <div className="relative w-[95%] max-w-md bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
              <div className="p-4 bg-rose-600 text-white border-b border-rose-700 flex justify-between items-center rounded-t-xl">
                 <h2 className="text-xl font-bold flex items-center gap-2 font-display"><FaExclamationTriangle/> Critical Hospitals Distribution</h2>
-                <button onClick={onClose}><FaTimes size={16} /></button>
+                <button onClick={onClose} className="p-2"><FaTimes size={16} /></button>
             </div>
-            <div className='p-6 space-y-4'>
+            <div className='p-6 space-y-4 overflow-y-auto'>
                 <div className="text-center">
                     <p className='font-semibold text-gray-700'>Percentage of hospitals in each zone with bed occupancy over 85%.</p>
                 </div>

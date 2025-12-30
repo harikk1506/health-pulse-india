@@ -38,7 +38,8 @@ export const PortalHeader = ({ activePortal, setActivePortal, onLogout, isSideba
                 <div className="flex items-center gap-2">
                     <img src={IndianLogo} alt="Indian Logo" className="h-9 w-9"/>
                     <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2 font-display">
-                        RASHTRIYA NITI
+                        <span className="hidden md:block">RASHTRIYA NITI</span>
+                        <span className="md:hidden">NITI</span>
                     </h1>
                 </div>
             </div>
@@ -52,7 +53,7 @@ export const PortalHeader = ({ activePortal, setActivePortal, onLogout, isSideba
                         onClick={() => setDropdownOpen(p => !p)} 
                         className="flex items-center gap-2 bg-gray-200 text-gray-800 font-bold py-2 px-3 rounded-lg hover:bg-gray-300 transition-colors"
                     >
-                        {t(`portal.${activePortal.toLowerCase()}`)} <FaChevronDown size={12} />
+                        <span className="hidden md:inline">{t(`portal.${activePortal.toLowerCase()}`)}</span> <FaChevronDown size={12} />
                     </button>
                     <CSSTransition nodeRef={innerRef} in={isDropdownOpen} timeout={200} classNames="dropdown" unmountOnExit>
                         <div ref={innerRef} className="absolute right-0 top-12 bg-white rounded-lg shadow-xl border z-50 w-48 py-1">
