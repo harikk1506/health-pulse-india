@@ -160,7 +160,7 @@ const PortalFooter = ({ trafficMultiplier }: {trafficMultiplier: number}) => {
 
     return(
         <footer className="bg-gray-800 text-gray-400 text-[10px] p-1 text-center flex-shrink-0 flex justify-between items-center px-4">
-            <span>© 2025 {PORTAL_MASTER_TITLE}. V1.0.0</span>
+            <span>© 2026 {PORTAL_MASTER_TITLE}. V1.0.0</span>
             <div className='flex items-center gap-4'>
                 <span className={`font-bold ${color}`}>Live Traffic: {trafficMultiplier.toFixed(2)}x ({statusText})</span>
                 <span className='font-semibold text-white'>Updated: {formattedTime}</span>

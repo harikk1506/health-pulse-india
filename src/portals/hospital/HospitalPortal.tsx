@@ -1051,7 +1051,7 @@ const HospitalPortal = ({ activePortal, setActivePortal, onGoToIntro }: { active
                 </div>
             </div>
             <footer className="bg-gray-800 text-gray-400 text-[10px] p-1 text-center flex-shrink-0 flex justify-between items-center px-4">
-                <span>© 2025 National Bed Occupancy Dashboard. V1.0.0 - Hospital Hub</span>
+                <span>© 2026 National Bed Occupancy Dashboard. V1.0.0 - Hospital Hub</span>
                 <div className="flex items-center gap-4">
                     <span className={`${ping > 200 ? 'text-red-500 animate-pulse font-bold' : ping > 100 ? 'text-yellow-400' : 'text-green-400'} font-semibold`}>Ping: {ping} ms</span>
                     <span>Session IP: 14.102.45.68</span>
@@ -1107,7 +1107,7 @@ const LoginPage = ({ onLogin, t, activePortal, setActivePortal, onGoToIntro }: {
                 </div>
             </div>
             <footer className="bg-gray-800 text-gray-400 text-[10px] p-1 text-center flex-shrink-0 flex justify-between items-center px-4">
-                <span>© 2025 National Bed Occupancy Dashboard. V1.0.0</span>
+                <span>© 2026 National Bed Occupancy Dashboard. V1.0.0</span>
                 <div className="flex items-center gap-4">
                     <span className='text-green-400 font-semibold'>Ping: 45 ms</span>
                     <span>Session IP: 14.102.45.68</span>

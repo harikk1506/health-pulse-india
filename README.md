@@ -6,7 +6,7 @@
 
 > To architect an evidence-based digital twin of India’s hospital bed infrastructure, designed to combat data opacity by modelling a centralised, multi-stakeholder platform.
 
-This project serves as the technical realisation of the framework proposed in **my preprint manuscript**, **"[Unlocking India's Hospital Beds: Why A Digital Portal Is the Cure for a Stretched System](https://preprints.jmir.org/preprint/84673)"**.
+This project serves as the technical realisation of the framework proposed in **my peer-reviewed article**, **"[Unlocking India's Hospital Beds: Why a Digital Portal Is the Cure for a Stretched System](https://doi.org/10.18203/2394-6040.ijcmph20260718)"**.
 
 ---
 

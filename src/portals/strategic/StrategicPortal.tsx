@@ -147,7 +147,7 @@ const PortalHeader = ({ activePortal, setActivePortal, onLogout, isSidebarCollap
 
 const PortalFooter = ({ ping }: { ping: number }) => (
     <footer className="bg-gray-800 text-gray-400 text-[9px] p-0 text-center flex-shrink-0 flex justify-between items-center px-4 z-20">
-        <span>© 2025 National Bed Occupancy Dashboard. V1.0.0 - {PORTAL_TITLE}</span>
+        <span>© 2026 National Bed Occupancy Dashboard. V1.0.0 - {PORTAL_TITLE}</span>
         <div className="flex items-center gap-4">
             {/* R-STRATEGIC-UX: Ping Color Logic. If > 100ms, it shows RED to match the lag. */}
             <span className={`${ping > 100 ? 'text-red-500 animate-pulse font-bold' : 'text-green-400'} font-semibold`}>Ping: {ping} ms</span>
