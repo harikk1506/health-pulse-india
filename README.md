@@ -37,7 +37,6 @@ Underpinning the platform is a **stratified pan-Indian dataset** of 150 hospital
 * **Geospatial:** React Google Maps API
 * **State Management:** React Context API
 * **Simulation Logic:** Custom TypeScript Modules (Deterministic & Stochastic Engines)
-* **Internationalisation:** i18n (English & Hindi support)
 * **Deployment:** Vercel
 
 ---
